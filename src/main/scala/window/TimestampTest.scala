@@ -8,6 +8,12 @@ object TimestampTest extends App{
   println(sdf.format(System.currentTimeMillis()))
   println(System.currentTimeMillis())
 
+  val sformat = new SimpleDateFormat("ss")
+  println(sformat.format(System.currentTimeMillis()).toLong)
+
+  println((23/3f).floor)
+  println((23/3f).ceil)
+
   val begin = System.currentTimeMillis()
   println("1,"+(begin+1000))
   println("1,"+(begin+5000))

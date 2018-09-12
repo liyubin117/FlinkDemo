@@ -24,13 +24,15 @@ object WatermarkTest {
 
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    //单线程环境下，watermark是全局的；多线程环境下，watermark不是全局的，有几个并行就有几个watermark，以最小的为准
+    env.setParallelism(1)
 
     val input = env.socketTextStream(hostName,port)
 
     val inputMap = input
       .filter(!_.isEmpty)
       .map(f=> {
-        val arr = f.split("\\W+")
+        val arr = f.split(",")
         val code = arr(0)
         val time = arr(1).toLong
         (code,time)
@@ -43,7 +45,7 @@ object WatermarkTest {
       .window(TumblingEventTimeWindows.of(Time.seconds(3)))
       .apply(new WindowFunctionTest)
 
-    window.print()
+    window.print().setParallelism(1)
 
     env.execute()
   }
@@ -56,6 +58,7 @@ object WatermarkTest {
     var a : Watermark = null
 
     val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val sformat = new SimpleDateFormat("ss")
 
     override def getCurrentWatermark: Watermark = {
       a = new Watermark(currentMaxTimestamp - maxOutOfOrderness)
@@ -65,7 +68,13 @@ object WatermarkTest {
     override def extractTimestamp(t: (String,Long), l: Long): Long = {
       val timestamp = t._2
       currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp)
-      println("input:" + t._1 +","+ t._2 + " | time:" +format.format(t._2) +" | currentMaxTimestamp:"+ format.format(currentMaxTimestamp) +" | Watermark:"+ format.format(a.getTimestamp))
+      println("input:" + t._1 +","+ t._2
+        + " | time:" +format.format(t._2)
+        +" | currentMaxTime:"+ format.format(currentMaxTimestamp)
+        +" | currentTime:"+ format.format(System.currentTimeMillis())
+        +" | 上一条Watermark:"+ format.format(a.getTimestamp)
+        +" | 所属窗口:"+ (sformat.format(t._2).toLong / 3f).floor*3 +","+ (sformat.format(t._2).toLong / 3f).ceil*3
+      )
       timestamp
     }
   }
