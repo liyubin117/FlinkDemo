@@ -1,4 +1,4 @@
-package base;
+package window;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
@@ -8,14 +8,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
 @SuppressWarnings("serial")
-public class SocketWindowWordCount {
+public class JavaSocketWindowWordCount {
 
     public static void main(String[] args) throws Exception {
 
         final int port;
         try {
             final ParameterTool params = ParameterTool.fromArgs(args);
-            port = params.getInt("port");
+            port = params.getInt("port",9888);
         } catch (Exception e) {
             System.err.println("No port specified. Please run 'SocketWindowWordCount --port <port>'");
             return;
@@ -23,12 +23,12 @@ public class SocketWindowWordCount {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        DataStream<String> text = env.socketTextStream("0.0.0.0", port, "\n");
+        DataStream<String> text = env.socketTextStream("spark", port, "\n");
 
         DataStream<WordWithCount> windowCounts = text
                 .flatMap(new MyFlatMapFunction())
                 .keyBy("word")
-                //.timeWindow(Time.seconds(5), Time.seconds(1))
+                //.timeWindow(Time.seconds(5), Time.seconds(1))  //若去掉window，则自动计算累积值
                 .reduce(new MyReduceFunction());
 
         windowCounts.print().setParallelism(3);
