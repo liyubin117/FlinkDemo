@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.flink.streaming.api.scala._
 
-object Iterations extends App{
+object BatchIterations extends App{
   val env = StreamExecutionEnvironment.getExecutionEnvironment
   env.setParallelism(1)
 
