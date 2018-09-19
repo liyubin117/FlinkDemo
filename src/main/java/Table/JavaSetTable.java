@@ -1,11 +1,16 @@
 package Table;
 
+import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.types.Row;
 
 public class JavaSetTable{
     public static void main(String[] args) throws Exception {
@@ -21,21 +26,23 @@ public class JavaSetTable{
                 "4,bin,26"
         );
         //生成DataSet
-        DataSet<Person> personSet = input.map(new MapFunction<String, Person>() {
-            public Person map(String value) throws Exception {
+        DataSet<Tuple3<Integer,String,Integer>> personSet = input.map(new MapFunction<String, Tuple3<Integer,String,Integer>>() {
+            public Tuple3<Integer,String,Integer> map(String value) throws Exception {
                 String[] x = value.split(",");
-                return new Person(Integer.valueOf(x[0]), x[1], Integer.valueOf(x[2]));
+                return new Tuple3(Integer.valueOf(x[0]), x[1], Integer.valueOf(x[2]));
             }
         });
-        tableEnv.registerDataSet("person", personSet,"id, name, age");
         //指定表程序
-        Table counts = tableEnv.scan("person").filter("age>=26").groupBy("age").select("age,id.count() as cnt");
-//        Table counts = tableEnv.sqlQuery("select age,count(1) from person where age>=26 group by age");
+//        Table counts = tableEnv.fromDataSet(personSet,"id,name,age").filter("age>=26").groupBy("age").select("age,id.count() as cnt");
+
+        tableEnv.registerDataSet("person", personSet,"id, name, age");
+        Table counts = tableEnv.sqlQuery("select age,count(1) from person where age>=26 group by age");
 
 //        //结果转化为DataSet
-        DataSet<Result> result = tableEnv.toDataSet(counts, Result.class);
+        DataSet<Row> result = tableEnv.toDataSet(counts,Row.class);
         result.print();
     }
+
 
 }
 
