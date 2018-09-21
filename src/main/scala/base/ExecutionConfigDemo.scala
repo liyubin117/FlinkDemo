@@ -2,6 +2,7 @@ package base
 
 import java.util.concurrent.TimeUnit
 
+import org.apache.flink.api.common.ExecutionConfig
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
 import org.apache.flink.api.common.time.Time
 import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
