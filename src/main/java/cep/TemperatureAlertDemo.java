@@ -2,6 +2,7 @@ package cep;
 
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternSelectFunction;
+import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.IterativeCondition;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -17,7 +18,7 @@ public class TemperatureAlertDemo {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        // DataStream : source
+        // 输入流
         DataStream<TemperatureEvent> inputEventStream = env.fromElements(new TemperatureEvent("xyz",22.0),
                 new TemperatureEvent("xyz",20.1), new TemperatureEvent("xyz",21.1),
                 new TemperatureEvent("xyz",22.2), new TemperatureEvent("xyz",22.1),
@@ -25,12 +26,11 @@ public class TemperatureAlertDemo {
                 new TemperatureEvent("xyz",22.4), new TemperatureEvent("xyz",22.7),
                 new TemperatureEvent("xyz",27.0), new TemperatureEvent("xyz",30.0));
 
-        // 定义Pattern，检查10秒钟内温度是否高于26度
+        // 定义模式，检查10秒钟内温度是否高于26度
         Pattern<TemperatureEvent,?> warningPattern = Pattern.<TemperatureEvent>begin("start")
                 .subtype(TemperatureEvent.class)
                 .where(new IterativeCondition<TemperatureEvent>() {
                     private static final long serialVersionUID = 1L;
-
                     public boolean filter(TemperatureEvent value, Context<TemperatureEvent> ctx) throws Exception {
                         if(value.getTemperature() >= 26.0){
                             return true;
@@ -40,11 +40,12 @@ public class TemperatureAlertDemo {
                 })
                 .within(Time.seconds(10));
 
-        //匹配pattern并select事件,符合条件的发生警告，即输出
-        DataStream<Alert> patternStream = CEP.pattern(inputEventStream, warningPattern)
-                .select(new PatternSelectFunction<TemperatureEvent, Alert>() {
-                    private static final long serialVersionUID = 1L;
+        //输入流 + 模式 = 模式流
+        PatternStream<TemperatureEvent> patternStream = CEP.pattern(inputEventStream, warningPattern);
 
+        //在模式流上select事件,符合条件的发生警告，即输出
+        DataStream<Alert> result= patternStream.select(new PatternSelectFunction<TemperatureEvent, Alert>() {
+                    private static final long serialVersionUID = 1L;
                     public Alert select(Map<String, List<TemperatureEvent>> event) throws Exception {
                         System.out.println(event.size());
                         TemperatureEvent e = event.get("start").get(0);
@@ -52,7 +53,7 @@ public class TemperatureAlertDemo {
                     }
                 });
 
-        patternStream.print();
+        result.print();
 
         env.execute("CEP on Temperature Sensor");
     }
