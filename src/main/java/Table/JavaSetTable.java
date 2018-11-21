@@ -38,6 +38,7 @@ public class JavaSetTable{
         tableEnv.registerDataSet("person", personSet,"id, name, age");
         Table counts = tableEnv.sqlQuery("select age,count(1) from person where age>=26 group by age");
 
+
 //        //结果转化为DataSet
         DataSet<Row> result = tableEnv.toDataSet(counts,Row.class);
         result.print();
