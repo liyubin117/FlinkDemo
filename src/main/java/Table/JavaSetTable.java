@@ -42,7 +42,7 @@ public class JavaSetTable{
 //        //结果转化为DataSet
         DataSet<Row> result = tableEnv.toDataSet(counts,Row.class);
         result.print();
-    }
+}
 
 
 }

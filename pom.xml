@@ -12,6 +12,7 @@
         <scala.version>2.11</scala.version>
         <flink.version>1.6.0</flink.version>
         <kafka.version>0.9.0.1</kafka.version>
+        <flume.version>1.6.0</flume.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -41,6 +42,12 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-cep_${scala.version}</artifactId>
             <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-core</artifactId>
+            <version>${flume.version}</version>
         </dependency>
 
         <!-- connector -->
