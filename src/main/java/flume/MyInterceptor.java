@@ -18,13 +18,13 @@ import java.util.List;
  * a1.sources.r1.interceptors.i1.delimiter=|
  *
  */
-public class MyIntercepter implements Interceptor {
+public class MyInterceptor implements Interceptor {
     private String host;
     private String app;
     private String fileName;
     private String delimiter;
 
-    public MyIntercepter(String host, String app, String fileName, String delimiter) {
+    public MyInterceptor(String host, String app, String fileName, String delimiter) {
         this.host = host;
         this.app = app;
         this.fileName = fileName;
@@ -109,7 +109,7 @@ public class MyIntercepter implements Interceptor {
          * @see org.apache.flume.interceptor.Interceptor.Builder#build()
          */
         public Interceptor build() {
-            return new MyIntercepter(host, app, fileName, delimiter);
+            return new MyInterceptor(host, app, fileName, delimiter);
         }
     }
 }
