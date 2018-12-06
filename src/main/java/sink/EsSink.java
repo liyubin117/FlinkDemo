@@ -43,6 +43,7 @@ public class EsSink{
         ElasticsearchSink.Builder<String> esSinkBuilder = new ElasticsearchSink.Builder<>(
                 httpHosts,
                 new ElasticsearchSinkFunction<String>() {
+                    //定义处理逻辑
                     public IndexRequest createIndexRequest(String element) {
                         Map<String, String> json = new HashMap<>();
                         json.put("data", element);

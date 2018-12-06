@@ -1,6 +1,5 @@
 package sink;
 
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.slf4j.Logger;
@@ -11,8 +10,8 @@ import java.sql.*;
  * 服务端
  * create table device(device_id varchar(200) primary key,device_no int,name varchar(200),gender varchar(100));
  */
-public class MySqlSink extends RichSinkFunction<Tuple4<String,Integer,String,String>> {
-    private Logger log = LoggerFactory.getLogger(MySqlSink.class);
+public abstract class MySqlSink<T> extends RichSinkFunction<T> {
+    private final Logger log = LoggerFactory.getLogger(MySqlSink.class);
     private static final long serialVersionUID = 1L;
 
     private Connection connection;
@@ -37,7 +36,7 @@ public class MySqlSink extends RichSinkFunction<Tuple4<String,Integer,String,Str
     public void open(Configuration parameters) throws Exception {
         connection = JDBCUtil.getConnection(driver,url,user,pwd);
         preparedStatement = connection.prepareStatement(sql);
-        log.info("open connection");
+        log.info("Flink-mysql open connection");
         super.open(parameters);
     }
 
@@ -45,35 +44,31 @@ public class MySqlSink extends RichSinkFunction<Tuple4<String,Integer,String,Str
     public void close() throws Exception {
         JDBCUtil.closeResource(resultSet,preparedStatement);
         super.close();
-        log.info("close connection");
+        log.info("Flink-mysql close connection");
     }
 
-    @Override
-    public void invoke(Tuple4<String,Integer,String,String> value) throws Exception {
-        if(value.f0 != "!!!error input!!!"){
-            preparedStatement.setString(1, value.f0);
-            preparedStatement.setInt(2, value.f1);
-            preparedStatement.setString(3, value.f2);
-            preparedStatement.setString(4, value.f3);
-            preparedStatement.executeUpdate();
-            log.info("update key:   "+value.f0);
-        }
+    public PreparedStatement getPreparedStatement(){
+        return this.preparedStatement;
     }
 
-    public static class JDBCUtil{
+    public Logger getLogger(){
+        return this.log;
+    }
+
+    private static class JDBCUtil{
         private static Connection conn;
 
-
-        public static Connection getConnection(String driver,String url,String user,String pwd){
+        public static Connection getConnection(String driver,String url,String user,String pwd) {
             try {
                 Class.forName(driver);
                 conn = DriverManager.getConnection(url,user,pwd);
-            } catch (ClassNotFoundException | SQLException e) {
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
             return conn;
         }
-
         public static void closeResource(ResultSet resultSet,PreparedStatement preparedStatement){
             if(resultSet !=null) {
                 try {

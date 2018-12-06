@@ -5,6 +5,7 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.junit.Test;
+import java.sql.PreparedStatement;
 
 public class TestMySqlSink {
     public TestMySqlSink(){}
@@ -12,15 +13,28 @@ public class TestMySqlSink {
     @Test
     public void test(){
         //mysql连接信息
-        MySqlSink mysqlSink = new MySqlSink("com.mysql.jdbc.Driver"
+        MySqlSink mysqlSink = new MySqlSink<Tuple4<String,Integer,String,String>>("com.mysql.jdbc.Driver"
                 ,"jdbc:mysql://spark:3306/test2"
                 ,"root"
                 ,"sbpgfsse"
                 ,"INSERT into device(device_id,device_no,name,gender) values(?,?,?,?) " +
-                        "ON DUPLICATE KEY UPDATE device_no = VALUES(device_no),name = VALUES(name),gender = VALUES(gender)");
+                        "ON DUPLICATE KEY UPDATE device_no = VALUES(device_no),name = VALUES(name),gender = VALUES(gender)"){
+            @Override
+            public void invoke(Tuple4<String,Integer,String,String> value) throws Exception {
+                if(value.f0 != "!!!error input!!!"){
+                    PreparedStatement preparedStatement = getPreparedStatement();
+                    preparedStatement.setString(1, value.f0);
+                    preparedStatement.setInt(2, value.f1);
+                    preparedStatement.setString(3, value.f2);
+                    preparedStatement.setString(4, value.f3);
+                    preparedStatement.executeUpdate();
+                    getLogger().info("update key:   "+value.f0);
+                }
+            }
+        };
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        //DataStream<Tuple4<String, Integer, String, String>> text = env.fromElements(new Tuple4("device1",1,"liyubin","male"));
+
         DataStream<String> socketStream = env.socketTextStream("spark",9888);
         DataStream<Tuple4<String, Integer, String, String>> text = socketStream.map(new MapFunction<String, Tuple4<String, Integer, String, String>>() {
             @Override
