@@ -25,6 +25,14 @@ nc -lk my 9889
 a,b
  */
 public class BroadstateUserAction {
+    /* 创建 Broadcast State 的描述 MapStateDescriptor */
+    public static final MapStateDescriptor<Void, Pattern> bcStateDescriptor =
+            new MapStateDescriptor<>(
+                    "patterns",
+                    Types.VOID,
+                    Types.POJO(Pattern.class)
+            );
+
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<Action> actions = env.socketTextStream("my",9888)
@@ -35,13 +43,7 @@ public class BroadstateUserAction {
         KeyedStream<Action, Long> actionsByUser = actions.keyBy(
                 (KeySelector<Action, Long>) action -> action.getUserId()
         );
-        /* 创建 Broadcast State 的描述 MapStateDescriptor */
-        final MapStateDescriptor<Void, Pattern> bcStateDescriptor =
-                new MapStateDescriptor<>(
-                        "patterns",
-                        Types.VOID,
-                        Types.POJO(Pattern.class)
-                );
+
         /* 定制 Broadcast Stream */
         BroadcastStream<Pattern> bcedPatterns = patterns.broadcast(bcStateDescriptor);
         /* 连接两个流并应用规则 */
