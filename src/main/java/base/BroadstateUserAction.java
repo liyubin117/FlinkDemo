@@ -26,7 +26,7 @@ a,b
  */
 public class BroadstateUserAction {
     /* 创建 Broadcast State 的描述 MapStateDescriptor */
-    public static final MapStateDescriptor<Void, Pattern> bcStateDescriptor =
+    private static final MapStateDescriptor<Void, Pattern> bcStateDescriptor =
             new MapStateDescriptor<>(
                     "patterns",
                     Types.VOID,
@@ -36,8 +36,10 @@ public class BroadstateUserAction {
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<Action> actions = env.socketTextStream("my",9888)
+                .filter((String str) -> str.split(",").length==2)
                 .map((String str) -> new Action(Long.valueOf(str.split(",")[0]),str.split(",")[1]));
         DataStream<Pattern> patterns = env.socketTextStream("my",9889)
+                .filter((String str) -> str.split(",").length==2)
                 .map((String str) -> new Pattern(str.split(",")[0],str.split(",")[1]));
         /* 设置Key的字段，同样用户的数据分到相同的operator里 */
         KeyedStream<Action, Long> actionsByUser = actions.keyBy(
@@ -65,6 +67,10 @@ public class BroadstateUserAction {
                             public void processElement(Action action, ReadOnlyContext ctx, Collector<Tuple2<Long, Pattern>> out) throws Exception {
                                 //得到当前模式
                                 Pattern pattern = ctx.getBroadcastState(bcStateDescriptor).get(null);
+                                if(pattern==null){ //检查是否有当前模式，若没有应取默认值
+                                    System.out.println("No Broadcast info, Using default pattern a---b !!!");
+                                    pattern = new Pattern();
+                                }
                                 //得到当前用户的最近状态
                                 String prevAction = prevActionState.value();
                                 //若最近状态和当前状态符合模式则将结果加到返回集
@@ -124,7 +130,10 @@ public class BroadstateUserAction {
         private String firstAction;
         private String secondAction;
 
-        public Pattern(){}
+        public Pattern(){
+            this.firstAction="a";
+            this.secondAction="b";
+        }
 
         public Pattern(String firstAction,String secondAction){
             this.firstAction=firstAction;
