@@ -16,6 +16,7 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.*;
  
 /**
@@ -25,7 +26,7 @@ import java.util.concurrent.*;
 public class BufferedMutatorExample extends Configured implements Tool {
     private static final int POOL_SIZE = 10;
     private static final int TASK_COUNT = 100;
-    private static final TableName TABLE = TableName.valueOf("lyb_asynctest2");
+    private static final TableName TABLE = TableName.valueOf("lyb_asynctest");
     private static final byte[] FAMILY = Bytes.toBytes("info");
     private static Configuration hbaseconfig;
     static{
@@ -42,7 +43,7 @@ public class BufferedMutatorExample extends Configured implements Tool {
             @Override
             public void onException(RetriesExhaustedWithDetailsException e, BufferedMutator mutator) {
                 for (int i = 0; i < e.getNumExceptions(); i++) {
-                    System.out.println("Failed to sent put " + e.getRow(i) + ".");
+                    System.out.println("Failed to sent put " + i + e.getRow(i) + ".");
                 }
             }
         };
@@ -67,7 +68,8 @@ public class BufferedMutatorExample extends Configured implements Tool {
                         // step 2: each worker sends edits to the shared BufferedMutator instance. They all use  
                         // the same backing buffer, call-back "listener", and RPC executor pool.  
                         //  
-                        Put p = new Put(Bytes.toBytes("someRow"));
+//                        Put p = new Put(Bytes.toBytes("someRow"));
+                        Put p = new Put(Bytes.toBytes(new Random().nextInt()));
                         p.addColumn(FAMILY, Bytes.toBytes("someQualifier"), Bytes.toBytes("some value"));
                         mutator.mutate(p);
                         mutator.flush();
