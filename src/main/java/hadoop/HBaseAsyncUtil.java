@@ -21,9 +21,9 @@ import java.util.*;
  * HBase Util
  *  2018/07/26
  */
-public class HBaseUtil {
+public class HBaseAsyncUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(HBaseAsyncUtil.class);
 
     private static Configuration conf;
     private static Connection conn;
