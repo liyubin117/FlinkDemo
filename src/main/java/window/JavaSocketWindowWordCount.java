@@ -1,8 +1,10 @@
 package window;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.common.functions.*;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.Gauge;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
@@ -23,29 +25,70 @@ public class JavaSocketWindowWordCount {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
+
         DataStream<String> text = env.socketTextStream("spark", port, "\n");
 
         DataStream<WordWithCount> windowCounts = text
+                .map(new RichMapFunction<String, String>() {
+                    private transient Counter counter;
+                    @Override
+                    public void open(Configuration config) {
+                        this.counter = getRuntimeContext()
+                                .getMetricGroup()
+                                .counter("myCounter");
+                    }
+                    @Override
+                    public String map(String str) throws Exception {
+                        counter.inc();
+                        return str;
+                    }
+
+                })
                 .flatMap(new MyFlatMapFunction())
                 .keyBy("word")
                 //.timeWindow(Time.seconds(5), Time.seconds(1))  //若去掉window，则自动计算累积值
                 .reduce(new MyReduceFunction());
 
         windowCounts.print().setParallelism(3);
-
         env.execute("Socket Window WordCount");
     }
 
-    public static class MyFlatMapFunction implements FlatMapFunction<String, WordWithCount> {
+    public static class MyFlatMapFunction extends RichFlatMapFunction<String, WordWithCount> {
+        private transient int valueToExpose = 0;
+
+        @Override
+        public void open(Configuration config) {
+            getRuntimeContext()
+                    .getMetricGroup()
+                    .gauge("MyGauge", new Gauge<Integer>() {
+                        @Override
+                        public Integer getValue() {
+                            return valueToExpose;
+                        }
+                    });
+        }
+
         public void flatMap(String in, Collector<WordWithCount> out) {
+            valueToExpose ++;
             for (String word: in.split("\\s")) {
                 out.collect(new WordWithCount(word, 1L));
             }
         }
+
     }
 
-    public static class MyReduceFunction implements ReduceFunction<WordWithCount> {
+    public static class MyReduceFunction extends RichReduceFunction<WordWithCount> {
+        private transient Counter counter;
+
+        @Override
+        public void open(Configuration config) {
+            this.counter = getRuntimeContext()
+                    .getMetricGroup()
+                    .counter("myCounter");
+        }
+
         public WordWithCount reduce(WordWithCount a, WordWithCount b) {
+            counter.inc();
             return new WordWithCount(a.word, a.count + b.count);
         }
     }
