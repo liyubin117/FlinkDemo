@@ -49,7 +49,7 @@ public class JavaSocketWindowWordCount {
                 //.timeWindow(Time.seconds(5), Time.seconds(1))  //若去掉window，则自动计算累积值
                 .reduce(new MyReduceFunction());
 
-        windowCounts.print().setParallelism(3);
+        windowCounts.print();
         env.execute("Socket Window WordCount");
     }
 

@@ -19,7 +19,7 @@ public class AsyncHbaseDemo {
         HBaseClient client = new HBaseClient("fuxi-luoge-76");
 
         PutRequest request = new PutRequest("lyb_testasync", "rk1", "f1", "c1", "v1");
-        PutRequest request2 = new PutRequest("lyb_testasync", "rk1", "f2", "", "v2");
+        PutRequest request2 = new PutRequest("lyb_testasync", "rk1", "f2", "", "v3");
 
 
         //异步写入

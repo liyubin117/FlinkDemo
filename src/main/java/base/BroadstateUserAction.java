@@ -86,6 +86,7 @@ public class BroadstateUserAction {
                             /* 被广播流里的每个元素调用，替换最近模式为当前模式 */
                             @Override
                             public void processBroadcastElement(Pattern pattern, Context ctx, Collector<Tuple2<Long, Pattern>> out) throws Exception {
+                                System.out.println("Pattern Updated as: "+pattern.getFirstAction()+"---"+pattern.getSecondAction());
                                 BroadcastState<Void, Pattern> bcState = ctx.getBroadcastState(bcStateDescriptor);
                                 bcState.put(null, pattern);
                             }
