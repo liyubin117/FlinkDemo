@@ -14,7 +14,7 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 import org.apache.flink.util.Collector
 
 
-object WatermarkTest {
+object WatermarkTestNew {
 
   def main(args: Array[String]): Unit = {
     if (args.length != 2) {
@@ -24,9 +24,12 @@ object WatermarkTest {
 
     val hostName = args(0)
     val port = args(1).toInt
+    println(hostName + "\n" + port)
 
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    env.getConfig.setAutoWatermarkInterval(1000)
+    env.setParallelism(1)
 
     val input = env.socketTextStream(hostName,port)
 
@@ -47,14 +50,16 @@ object WatermarkTest {
       val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
       override def getCurrentWatermark: Watermark = {
+        println("get watermark 1: " + a)
         a = new Watermark(currentMaxTimestamp - maxOutOfOrderness)
+        println("get watermark 2: " + a)
         a
       }
 
       override def extractTimestamp(t: (String,Long), l: Long): Long = {
         val timestamp = t._2
         currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp)
-        println("timestamp:" + t._1 +","+ t._2 + "|" +format.format(t._2) +","+  currentMaxTimestamp + "|"+ format.format(currentMaxTimestamp) + ","+ a.toString)
+        println("timestamp:" + t._1 + "," + format.format(t._2) +","+  format.format(currentMaxTimestamp) + ","+ format.format(a.getTimestamp))
         timestamp
       }
     })
