@@ -1,6 +1,7 @@
 package window;
 
 import java.text.SimpleDateFormat
+import java.util.Date
 
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
@@ -44,6 +45,7 @@ object WatermarkTestNew {
 
       var currentMaxTimestamp = 0L
       val maxOutOfOrderness = 10000L//最大允许的乱序时间是10s
+      var timestamp:Long = 0L
 
       var a : Watermark = null
 
@@ -51,13 +53,21 @@ object WatermarkTestNew {
 
       override def getCurrentWatermark: Watermark = {
         println("get watermark 1: " + a)
+
+        // avoid the watermark not being processed because of non input event
+        if (timestamp == 0) {
+          currentMaxTimestamp = Math.max(currentMaxTimestamp, new Date().getTime)
+        }
+        timestamp = 0
+
+
         a = new Watermark(currentMaxTimestamp - maxOutOfOrderness)
         println("get watermark 2: " + a)
         a
       }
 
       override def extractTimestamp(t: (String,Long), l: Long): Long = {
-        val timestamp = t._2
+        timestamp = t._2
         currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp)
         println("timestamp:" + t._1 + "," + format.format(t._2) +","+  format.format(currentMaxTimestamp) + ","+ format.format(a.getTimestamp))
         timestamp
