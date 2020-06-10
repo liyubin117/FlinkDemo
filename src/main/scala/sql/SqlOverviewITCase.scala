@@ -162,10 +162,20 @@ class SqlOverviewITCase {
   @Test
   def testSelect(): Unit = {
 //    val sql = "替换想要测试的SQL"
-    val sql = "select * from order_tab"
-    procTimePrint(sql)
+
     // 非window 相关用 procTimePrint(sql)
+    //    val sql = "SELECT c_name, CONCAT(c_name, ' come ', c_desc) as desc  FROM customer_tab"
+
+    //    val sql = "SELECT c_id, c_name, c_desc  FROM customer_tab  UNION  SELECT c_id, c_name, c_desc  FROM customer_tab"
+    //    val sql = "SELECT c_id, count(o_id) as o_count FROM order_tab GROUP BY c_id"
+    //    val sql = "SELECT c_id, c_name, c_desc FROM customer_tab WHERE c_id IN (SELECT c_id FROM order_tab)"
+//    val sql = "SELECT * FROM customer_tab AS c JOIN order_tab AS o ON o.c_id = c.c_id"
+//    procTimePrint(sql)
+
     // Window 相关用 rowTimePrint(sql)
+    val sql = "SELECT  \n    region, \n    SESSION_START(rowtime, INTERVAL '3' MINUTE) AS winStart,  \n    SESSION_END(rowtime, INTERVAL '3' MINUTE) AS winEnd, \n    COUNT(region) AS pv  \nFROM pageAccessSession_tab\nGROUP BY region, SESSION(rowtime, INTERVAL '3' MINUTE)"
+    rowTimePrint(sql)
+
   }
 
 }
