@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author zhangjun 欢迎关注我的公众号[大数据技术与应用实战],获取更多精彩实战内容
- * <p>
  * 在电商网站买了商品，订单完成之后，如果用户24小时之内没评论，系统自动好评。
  * 我们通过flink的定时器来简单的实现这个功能
  */
@@ -31,6 +29,7 @@ public class TimerDemo {
 	public static void main(String[] args) throws Exception{
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.enableCheckpointing(5000);
+		env.setParallelism(1);
 		DataStream<Tuple2<String,Long>> dataStream = env.addSource(new MySource());
 		//经过interval毫秒用户未对订单做出评价，自动给与好评.
 		//我们为了演示方便，设置了5s的时间
@@ -61,6 +60,7 @@ public class TimerDemo {
 		@Override
 		public void onTimer(
 				long timestamp, OnTimerContext ctx, Collector<Object> out) throws Exception{
+			System.out.println("-----调用 Timer-----");
 			Iterator iterator = mapState.iterator();
 			while (iterator.hasNext()){
 				Map.Entry<String,Long> entry = (Map.Entry<String,Long>) iterator.next();
