@@ -14,6 +14,7 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public class TimerDemo {
 
 	public static void main(String[] args) throws Exception{
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-		env.enableCheckpointing(5000);
+//		env.enableCheckpointing(5000);
 		env.setParallelism(1);
 		DataStream<Tuple2<String,Long>> dataStream = env.addSource(new MySource());
 		//经过interval毫秒用户未对订单做出评价，自动给与好评.
@@ -60,7 +61,7 @@ public class TimerDemo {
 		@Override
 		public void onTimer(
 				long timestamp, OnTimerContext ctx, Collector<Object> out) throws Exception{
-			System.out.println("-----调用 Timer-----");
+			System.out.println("-----调用 Timer-----" + ctx.getCurrentKey()+"\t"+new Date(timestamp));
 			Iterator iterator = mapState.iterator();
 			while (iterator.hasNext()){
 				Map.Entry<String,Long> entry = (Map.Entry<String,Long>) iterator.next();
@@ -71,7 +72,7 @@ public class TimerDemo {
 				if (f){
 					LOG.info("订单(orderid: {}) 在  {} 毫秒时间内已经评价，不做处理", orderid, interval);
 				}
-				if (f){
+				else{
 					//如果用户没有做评价，在调用相关的接口给与默认的五星评价
 					LOG.info("订单(orderid: {}) 超过  {} 毫秒未评价，调用接口给与五星自动好评", orderid, interval);
 				}
@@ -109,6 +110,7 @@ public class TimerDemo {
 				//订单完成时间
 				long orderFinishTime = System.currentTimeMillis();
 				ctx.collect(Tuple2.of(orderid, orderFinishTime));
+                System.out.println("-----生成一条数据----- orderid:" + orderid);
 			}
 		}
 
