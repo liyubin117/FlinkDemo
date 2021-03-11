@@ -7,7 +7,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.AllWindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 
 import java.util.Properties;
 
@@ -27,7 +27,7 @@ public class kafkaSourceTriggerTest {
         properties.setProperty("bootstrap.servers", "localhost:9093");
         properties.setProperty("group.id", "test");
 
-        FlinkKafkaConsumer010<String> kafkaConsumer010 = new FlinkKafkaConsumer010<>("test",
+        FlinkKafkaConsumer<String> kafkaConsumer010 = new FlinkKafkaConsumer<>("test",
                 new SimpleStringSchema(),
                 properties);
 

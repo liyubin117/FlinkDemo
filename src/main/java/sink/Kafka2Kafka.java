@@ -4,8 +4,8 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
 /**
  *   服务端
@@ -28,8 +28,8 @@ public class Kafka2Kafka {
         properties.setProperty("auto.offset.rest","latest");
 
         //flink作为kafaka消费者，消费flink-topic的数据
-        FlinkKafkaConsumer010<String> consumer = new
-                FlinkKafkaConsumer010<String>("flink-topic", new SimpleStringSchema(),
+        FlinkKafkaConsumer<String> consumer = new
+                FlinkKafkaConsumer<String>("flink-topic", new SimpleStringSchema(),
                 properties);
         consumer.setStartFromGroupOffsets();
         DataStream<String> input = env.addSource(consumer);
@@ -40,7 +40,7 @@ public class Kafka2Kafka {
             }
         });
         //flink作为kafka生产者，将flink-tipic中包含a的数据发给flink-topic2
-        FlinkKafkaProducer010<String> producer = new FlinkKafkaProducer010<String>("spark:9992",
+        FlinkKafkaProducer<String> producer = new FlinkKafkaProducer<String>("spark:9992",
                 "flink-topic2", new SimpleStringSchema());
         result.addSink(producer);
 
