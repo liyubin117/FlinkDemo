@@ -30,6 +30,7 @@ object Base {
 
     // SQL api
     tableEnv.createTemporaryView("t", resultTable)
+    tableEnv.createTemporaryView("t2", resultDataStream)
     val resultSqlTable = tableEnv.sqlQuery(
       """
         |select count(distinct v) as cnt
