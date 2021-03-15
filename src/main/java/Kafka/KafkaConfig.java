@@ -14,7 +14,7 @@ public class KafkaConfig {
     public static final String ZOOKEEPER=HOSTNAME+":2188";
     public static final String KAFKA=HOSTNAME+":9992";
     public static final String SERIALIZER = "kafka.serializer.StringEncoder";
-    public static final String ACKS = "1";
+    public static final String ACKS = "sta.txt";
     public static final String GROUP_ID="test_group";
     public static final String TOPICS="test";
 

@@ -66,7 +66,7 @@ public class HBaseAsyncUtil {
      */
     public static void createTable(String tableName, String[] columnFamilies, boolean preBuildRegion) throws Exception {
         if (preBuildRegion) {
-            String[] s = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+            String[] s = new String[]{"sta.txt", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
             int partition = 16;
             byte[][] splitKeys = new byte[partition - 1][];
             for (int i = 1; i < partition; i++) {
