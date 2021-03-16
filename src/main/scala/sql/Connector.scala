@@ -20,6 +20,7 @@ object Connector {
        .field("name", DataTypes.STRING())
      )
      .createTemporaryTable("esTest")
+    bsTableEnv.from("esTest").printSchema()
 
     //jdbc
     val sinkDDL =
@@ -36,8 +37,9 @@ object Connector {
         |   'table-name' = 'users',
         |   'username' = 'user',
         |   'password' = 'passwd'
-        |);
+        |)
         |""".stripMargin
     bsTableEnv.sqlUpdate(sinkDDL)
+    bsTableEnv.from("MyUserTable").printSchema()
   }
 }

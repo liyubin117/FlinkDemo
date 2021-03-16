@@ -25,11 +25,12 @@ object StateCallInterval {
         var arr = line.split(",")
         new StationLog(arr(0).trim, arr(1).trim, arr(2).trim, arr(3).trim, arr(4).trim.toLong, arr(5).trim.toLong)
       })
+    data.print()
 
     //方法一
     data.keyBy(_.callIn) //按照呼叫手机号分组
       .flatMap(new CallIntervalFunction())
-      .print()
+      .print("first")
 
     //方法二：调用 flatMapWithState算子
     data.keyBy(_.callIn) //按照呼叫手机号分组
@@ -39,7 +40,7 @@ object StateCallInterval {
           var interval = in.callTime - pre.get.callTime
           (List((in.callIn, interval)), Some(in))
         }
-      }.print()
+      }.print("second")
 
     //方法三 mapWithState 算子也可以
     data.keyBy(_.callIn) //按照呼叫手机号分组
@@ -49,7 +50,7 @@ object StateCallInterval {
           var interval = in.callTime - pre.get.callTime
           ((in.callIn, interval), Some(in))
         }
-      }.print()
+      }.print("third")
 
     streamEnv.execute()
 
