@@ -7,11 +7,14 @@ import org.apache.flink.table.api._
 import org.apache.flink.table.api.bridge.scala._
 import org.apache.flink.api.scala._
 import org.apache.flink.types.Row
-import sql.function.{Avg, HashCode, Split}
+import org.junit.{After, Assert, Before, Test}
+import sql.function.{Avg, HashCode, Split, Top2}
 import sql.EnvDemo.env
 
-object FunctionDemo {
-  def main(args: Array[String]): Unit = {
+@Test
+class FunctionDemo extends Assert{
+  @Before
+  def init()={
     env.setParallelism(1)
 
     val filePath = "file/person.csv"
@@ -24,31 +27,68 @@ object FunctionDemo {
       .withFormat(new Csv) //定义文件格式
       .withSchema(schema)
       .createTemporaryTable("person")
+  }
 
-    // Table api方式
+  @Test
+  def table_scalar(): Unit ={
     val hash = new HashCode(2.1)
     bsTableEnv.from("person")
       .select('id, 'name, hash('name) as 'hashcode)
       .toAppendStream[Row]
       .print("scalar function by tableApi")
+    env.execute()
+    assert(true)
+  }
+
+  @Test
+  def table_table(): Unit ={
     val split = new Split(":")
     bsTableEnv.from("person")
       .joinLateral(split('name) as ('col1,'col2) )
       .toAppendStream[Row]
       .print("table function by tableApi")
+    env.execute()
+    assert(true)
+  }
+
+  @Test
+  def table_aggregate(): Unit ={
     val avg = new Avg
     bsTableEnv.from("person")
-        .groupBy('id)
-        .aggregate(avg('age) as 'col)
-        .select('id, 'col)
-        .toRetractStream[Row]
-        .print("aggregate function by tableApi")
+      .groupBy('id)
+      .aggregate(avg('age) as 'col)
+      .select('id, 'col)
+      .toRetractStream[Row]
+      .print("aggregate function by tableApi")
+    env.execute()
+    assert(true)
+  }
 
-    // Sql api方式
+  @Test
+  def table_table_aggregate(): Unit ={
+    val top2 = new Top2
+    bsTableEnv.from("person")
+      .groupBy('id)
+      .flatAggregate(top2('age) as ('col, 'rank))
+      .select('id, 'col, 'rank)
+      .toRetractStream[Row]
+      .print("table aggregate function by tableApi")
+    env.execute()
+    assert(true)
+  }
+
+  @Test
+  def sql_scalar(): Unit ={
     bsTableEnv.registerFunction("hash", new HashCode(2.1))
     bsTableEnv.sqlQuery("select id,name,hash(name) as hashcode from person")
       .toAppendStream[Row]
       .print("scalar function by sqlApi")
+    env.execute()
+    assert(true)
+  }
+
+  @Test
+  def sql_table(): Unit ={
     bsTableEnv.registerFunction("split", new Split(":"))
     bsTableEnv.sqlQuery(
       """
@@ -56,11 +96,10 @@ object FunctionDemo {
         |from person,
         |lateral table(split(name)) as splitid(word, length)
       """.stripMargin)
-        .toAppendStream[Row]
-        .print("table function by sqlApi")
-
+      .toAppendStream[Row]
+      .print("table function by sqlApi")
     env.execute()
-
+    assert(true)
   }
 }
 
