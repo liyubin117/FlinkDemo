@@ -24,9 +24,9 @@ object TableDemo extends App{
   val fileTable = bsTableEnv.from("person")
     .filter($("age") > 25)
     .select($("id"), $("name"), $("age"))
-  println(bsTableEnv.explain(fileTable))
   val personStream = fileTable.toAppendStream[(Long, String, Long)]
   personStream.print("result")
+  println(bsTableEnv.explain(fileTable))
 
   bsTableEnv.connect(new FileSystem().path("file/output.csv"))
     .withFormat(new OldCsv) //定义文件格式
