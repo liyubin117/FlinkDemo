@@ -8,9 +8,11 @@ import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
 
 public class JoinDemo {
     public static void main(String[] args) throws Exception {
@@ -44,10 +46,21 @@ public class JoinDemo {
             .apply(new JoinFunction<Tuple2<String, Integer>, Tuple2<String, Integer>, Object>() {
                 @Override
                 public Object join(Tuple2<String, Integer> first, Tuple2<String, Integer> second) throws Exception {
-                    return first.f1 + second.f1;
+                    return first.f1 + "," + second.f1;
                 }
             })
-            .print("result");
+            .print("window join");
+
+        left.keyBy(new MySelector())
+            .intervalJoin(right.keyBy(new MySelector()))
+            .between(Time.seconds(-5), Time.seconds(5))
+            .process(new ProcessJoinFunction<Tuple2<String, Integer>, Tuple2<String, Integer>, Object>() {
+                @Override
+                public void processElement(Tuple2<String, Integer> left, Tuple2<String, Integer> right, Context ctx, Collector<Object> out) throws Exception {
+                    out.collect(left + "," + right);
+                }
+            })
+            .print("interval join");
 
         env.execute();
     }
