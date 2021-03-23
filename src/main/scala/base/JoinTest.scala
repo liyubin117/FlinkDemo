@@ -35,7 +35,7 @@ class JoinTest extends Assert {
     .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[OrderLogEvent1](Time.seconds(5)) {
       override def extractTimestamp(element: OrderLogEvent1): Long = element.timeStamp
     })
-    .keyBy(_.orderId)
+//    .keyBy(_.orderId)
 
   val rightOrderStream = env.fromCollection(List(
     OrderLogEvent2(1L, 121, 1000L),
@@ -48,7 +48,7 @@ class JoinTest extends Assert {
     .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[OrderLogEvent2](Time.seconds(5)) {
       override def extractTimestamp(element: OrderLogEvent2): Long = element.timeStamp
     })
-    .keyBy(_.orderId)
+//    .keyBy(_.orderId)
 
 
   @Test
@@ -104,7 +104,8 @@ class JoinTest extends Assert {
   @Test
   def testIntervalJoin(): Unit ={
     leftOrderStream
-      .intervalJoin(rightOrderStream)
+      .keyBy(_.orderId)
+      .intervalJoin(rightOrderStream.keyBy(_.orderId))
       .between(Time.minutes(-2), Time.minutes(1))
       .process(new IntervalJoinFunction)
       .print()
