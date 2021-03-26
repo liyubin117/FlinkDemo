@@ -15,6 +15,10 @@ import org.apache.flink.util.Collector
 import scala.collection.JavaConversions._
 
 /**
+需求：
+  按照区域areaId+商品gdsId分组，计算每个分组的累计销售额
+  将得到的区域areaId+商品gdsId维度的销售额按照区域areaId分组，然后求得TopN的销售额商品，并且定时更新输出
+输入：
 orderId01,1573874530000,gdsId03,300,beijing
 orderId02,1573874540000,gdsId01,100,beijing
 orderId02,1573874540000,gdsId04,200,beijing
@@ -28,7 +32,7 @@ case class Order(var orderId: String, var orderTime: Long, var gdsId: String, va
 
 case class GdsSales(var areaId: String, var gdsId: String, var amount: Double, var orderTime: Long)
 
-object GlobalTopn extends App {
+object GlobalTopN extends App {
 
   val env = StreamExecutionEnvironment.getExecutionEnvironment
   env.setParallelism(1)
@@ -82,10 +86,13 @@ object GlobalTopn extends App {
       var fireStateDesc: ValueStateDescriptor[Long] = _
 
       override def open(parameters: Configuration): Unit = {
+        //每个区域的商品销售情况，使用TreeSet去重并从小到大排列
         topStateDesc = new ValueStateDescriptor[java.util.TreeSet[GdsSales]]("top-state", TypeInformation.of(classOf[java.util.TreeSet[GdsSales]]))
         topState = getRuntimeContext.getState(topStateDesc)
+        //每个区域每个商品与最新销售情况的对应情况
         mappingStateDesc = new MapStateDescriptor[String, GdsSales]("mapping-state", TypeInformation.of(classOf[String]), TypeInformation.of(classOf[GdsSales]))
         mappingState = getRuntimeContext.getMapState(mappingStateDesc)
+        //
         fireStateDesc = new ValueStateDescriptor[Long]("fire-time", TypeInformation.of(classOf[Long]))
         fireState = getRuntimeContext.getState(fireStateDesc)
       }
@@ -93,18 +100,18 @@ object GlobalTopn extends App {
       override def processElement(value: GdsSales, ctx: KeyedProcessFunction[String, GdsSales, Void]#Context, out: Collector[Void]): Unit = {
         val top = topState.value()
         if (top == null) {
-          val topMap: java.util.TreeSet[GdsSales] = new java.util.TreeSet[GdsSales](new Comparator[GdsSales] {
+          val topSet: java.util.TreeSet[GdsSales] = new java.util.TreeSet[GdsSales](new Comparator[GdsSales] {
             override def compare(o1: GdsSales, o2: GdsSales): Int = (o1.amount - o2.amount).toInt
           })
-          topMap.add(value)
-          topState.update(topMap)
+          topSet.add(value)
+          topState.update(topSet)
           mappingState.put(value.gdsId, value)
         } else {
           mappingState.contains(value.gdsId) match {
             case true => {
               //已经存在该商品的销售数据
               val oldV = mappingState.get(value.gdsId)
-              mappingState.put(value.gdsId, value)
+              mappingState.put(value.gdsId, value)  //更新商品与最新销售情况的对应
               val values = topState.value()
               values.remove(oldV)
               values.add(value) //更新旧的商品销售数据
