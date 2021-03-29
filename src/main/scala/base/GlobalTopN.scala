@@ -15,17 +15,23 @@ import org.apache.flink.util.Collector
 import scala.collection.JavaConversions._
 
 /**
-需求：
-  按照区域areaId+商品gdsId分组，计算每个分组的累计销售额
-  将得到的区域areaId+商品gdsId维度的销售额按照区域areaId分组，然后求得TopN的销售额商品，并且定时更新输出
-输入：
-orderId01,1573874530000,gdsId03,300,beijing
-orderId02,1573874540000,gdsId01,100,beijing
-orderId02,1573874540000,gdsId04,200,beijing
-orderId02,1573874540000,gdsId02,500,beijing
-orderId01,1573874530000,gdsId01,300,beijing
-
-orderId02,1573874540000,gdsId04,500,beijing
+  * 需求：
+  * 按照区域areaId+商品gdsId分组，计算每个分组的累计销售额
+  * 将得到的区域areaId+商品gdsId维度的销售额按照区域areaId分组，然后求得TopN的销售额商品，并且定时更新输出
+  * 输入：
+  * orderId01,1573874530000,gdsId03,300,beijing
+  * orderId02,1573874540000,gdsId01,100,beijing
+  * orderId02,1573874540000,gdsId04,200,beijing
+  * orderId02,1573874540000,gdsId02,500,beijing
+  * orderId01,1573874530000,gdsId01,300,beijing
+  * *
+  * orderId02,1573874540000,gdsId04,500,beijing
+  * *
+  * orderId02,1573874540000,gdsId03,10000,beijing
+  * *
+  * orderId02,1573874540000,gdsId05,20000,beijing
+  * *
+  * orderId02,1573874540000,gdsId01,20000,beijing
   */
 
 case class Order(var orderId: String, var orderTime: Long, var gdsId: String, var amount: Double, var areaId: String)
@@ -37,10 +43,10 @@ object GlobalTopN extends App {
   val env = StreamExecutionEnvironment.getExecutionEnvironment
   env.setParallelism(1)
 
-//  val kafkaConfig = new Properties()
-//  kafkaConfig.put("bootstrap.servers", "localhost:9092")
-//  kafkaConfig.put("group.id", "test1")
-//  val consumer = new FlinkKafkaConsumer[String]("topic1", new SimpleStringSchema(), kafkaConfig)
+  //  val kafkaConfig = new Properties()
+  //  kafkaConfig.put("bootstrap.servers", "localhost:9092")
+  //  kafkaConfig.put("group.id", "test1")
+  //  val consumer = new FlinkKafkaConsumer[String]("topic1", new SimpleStringSchema(), kafkaConfig)
 
   val consumer = env.socketTextStream("localhost", 9888)
 
@@ -75,9 +81,9 @@ object GlobalTopN extends App {
 
   salesStream.keyBy(_.areaId)
     .process(new KeyedProcessFunction[String, GdsSales, Void] {
-      var topState: ValueState[java.util.TreeSet[GdsSales]] = _
+      var topState: ValueState[java.util.TreeSet[GdsSales]] = _ //top n
       var topStateDesc: ValueStateDescriptor[java.util.TreeSet[GdsSales]] = _
-      var mappingState: MapState[String, GdsSales] = _
+      var mappingState: MapState[String, GdsSales] = _ // 商品名与对应情况的映射
       var mappingStateDesc: MapStateDescriptor[String, GdsSales] = _
       val interval: Long = 60000
       val N: Int = 3
@@ -98,6 +104,8 @@ object GlobalTopN extends App {
       }
 
       override def processElement(value: GdsSales, ctx: KeyedProcessFunction[String, GdsSales, Void]#Context, out: Collector[Void]): Unit = {
+        //一开始流入元素时，top状态是空的，要初始化并把第一个元素写进状态
+        // 后面流入元素时，首先把top状态里的同商品元素旧状态删掉，然后更新商品名与元素的映射状态，若top未达到N则直接写入，若达到N则与第一个元素进行比较若大于则覆盖
         val top = topState.value()
         if (top == null) {
           val topSet: java.util.TreeSet[GdsSales] = new java.util.TreeSet[GdsSales](new Comparator[GdsSales] {
@@ -105,38 +113,24 @@ object GlobalTopN extends App {
           })
           topSet.add(value)
           topState.update(topSet)
-          mappingState.put(value.gdsId, value)
         } else {
-          mappingState.contains(value.gdsId) match {
-            case true => {
-              //已经存在该商品的销售数据
-              val oldV = mappingState.get(value.gdsId)
-              mappingState.put(value.gdsId, value)  //更新商品与最新销售情况的对应
-              val values = topState.value()
-              values.remove(oldV)
-              values.add(value) //更新旧的商品销售数据
-              topState.update(values)
-            }
-            case false => {
-              //不存在该商品销售数据
-              if (top.size() >= N) {
-                //已经达到N 则判断更新
-                val min = top.first()
-                if (value.amount > min.amount) {
-                  top.pollFirst()
-                  top.add(value)
-                  mappingState.put(value.gdsId, value)
-                  topState.update(top)
-                }
-              } else {
-                //还未到达N则直接插入
-                top.add(value)
-                mappingState.put(value.gdsId, value)
-                topState.update(top)
-              }
+          if(mappingState.contains(value.gdsId)) top.remove(mappingState.get(value.gdsId))
+          mappingState.put(value.gdsId, value)
+          if (top.size() < N) {
+            //还未到达N则直接插入
+            top.add(value)
+            topState.update(top)
+          } else {
+            //已经达到N 则判断更新
+            val min = top.first()
+            if (value.amount > min.amount) {
+              top.pollFirst()
+              top.add(value)
+              topState.update(top)
             }
           }
         }
+
         val currTime = ctx.timerService().currentProcessingTime()
         //1min输出一次
         if (fireState.value() == null) {
@@ -148,7 +142,9 @@ object GlobalTopN extends App {
 
       }
 
-      override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[String, GdsSales, Void]#OnTimerContext, out: Collector[Void]): Unit = {
+      override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[String, GdsSales, Void]#OnTimerContext, out: Collector[Void]): Unit
+
+      = {
         println(timestamp + "===")
         val c: util.TreeSet[GdsSales] = topState.value()
         c.foreach(x => println(x))
@@ -160,7 +156,9 @@ object GlobalTopN extends App {
         }
       }
 
-    })
+    }
+
+    )
 
 
   env.execute()
