@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrderness
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 
 case class Record(var id:Long, var ts:Long)
-class WindowDistinctAggHll {
+object WindowDistinctAggHll {
   def main(args: Array[String]): Unit = {
     env.socketTextStream("localhost",9888)
       .map(x => {
@@ -21,19 +21,28 @@ class WindowDistinctAggHll {
       .keyBy(_.id)
       .window(TumblingEventTimeWindows.of(Time.seconds(5)))
       .aggregate(new HllDistinct())
+      .print()
+
+    env.execute()
   }
 }
 
-class HllDistinct extends AggregateFunction[Record, Tuple2[Long, HLL], Tuple2[Long, Long]]{
-  override def createAccumulator(): (Long, HLL) = Tuple2(0, new HLL(14, 6))
+case class Acc(var cnt:Long, var hll:HLL)
+class HllDistinct extends AggregateFunction[Record, Acc, (Long, Long)]{
+  override def createAccumulator(): Acc = Acc(0, new HLL(14, 6))
 
-  override def add(value: Record, accumulator: (Long, HLL)): (Long, HLL) = {
+  override def add(value: Record, accumulator: Acc): Acc = {
     // todo
-    accumulator._1 = accumulator._1 + 1
-
+    accumulator.cnt = accumulator.cnt + 1
+    accumulator.hll.addRaw(value.id)
+    accumulator
   }
 
-  override def getResult(accumulator: (Long, HLL)): (Long, Long) = ???
+  override def getResult(accumulator: Acc): (Long, Long) = (accumulator.cnt, accumulator.hll.cardinality())
 
-  override def merge(a: (Long, HLL), b: (Long, HLL)): (Long, HLL) = ???
+  override def merge(a: Acc, b: Acc): Acc = {
+    a.cnt = a.cnt + b.cnt
+    a.hll.union(b.hll)
+    a
+  }
 }
