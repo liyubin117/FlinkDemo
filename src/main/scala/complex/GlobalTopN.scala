@@ -115,7 +115,7 @@ object GlobalTopN extends App {
           topState.update(topSet)
         } else {
           if(mappingState.contains(value.gdsId)) top.remove(mappingState.get(value.gdsId))
-          mappingState.put(value.gdsId, value)
+
           if (top.size() < N) {
             //还未到达N则直接插入
             top.add(value)
@@ -130,6 +130,7 @@ object GlobalTopN extends App {
             }
           }
         }
+        mappingState.put(value.gdsId, value)
 
         val currTime = ctx.timerService().currentProcessingTime()
         //1min输出一次
