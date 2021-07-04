@@ -1,5 +1,3 @@
-package sql.function
-
 import org.apache.flink.table.functions.TableFunction
 
 class Split(separator: String) extends TableFunction[(String, Long)] {

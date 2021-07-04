@@ -1,4 +1,4 @@
-package sql.datatype.timezone;
+package datatype;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -6,31 +6,30 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.time.ZoneOffset;
 
+
 /**
- * 项目名称: Apache Flink 知其然，知其所以然 - datatype.timezone
- * 功能描述: 体验Flink SQL 对timestamp的使用和WWATERMARK的设置
+ * 项目名称: Apache Flink 知其然，知其所以然 - datatype
+ * 功能描述: Flink SQL INTERVAL
  * 操作步骤:
  * <p>
  * 作者： 孙金城
- * 日期： 2020/11/22
+ * 日期： 2020/10/11
  */
-public class FlinkTimestampExample {
-    public static void main(String[] args) throws Exception {
-        String sourceDDL = "CREATE TABLE cvs_source (\n" +
-                " ts TIMESTAMP(3),\n" +
-                " ts_v BIGINT, \n" +
-                " WATERMARK FOR ts AS ts - INTERVAL '5' SECOND\n" +
+public class FlinkDurationExample {
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());
+        String sourceDDL = "CREATE TABLE datagen_source (\n" +
+                " hiredate TIMESTAMP,\n" +
+                " ts BIGINT \n" +
                 ") WITH (\n" +
                 " 'connector' = 'filesystem' ,\n" +
-                " 'path' = 'file:///Users/jincheng.sunjc/work/know_how_know_why/khkw/No46-SQL-Datatypes/src/main/resources/tsdata2.csv',\n" +
+                " 'path' = 'file:///Users/jincheng.sunjc/work/know_how_know_why/khkw/No46-SQL-Datatypes/src/main/resources/tsdata.csv',\n" +
                 " 'format' = 'csv' \n" +
                 ")";
 
         String sinkDDL = "CREATE TABLE print_sink (\n" +
-                " ts BIGINT,\n" +
-                " c_v BIGINT,\n" +
-                " s_ts TIMESTAMP(3), \n" +
-                " e_ts TIMESTAMP(3) \n" +
+                " seniority TIMESTAMP, \n" +
+                " ts TIMESTAMP \n" +
                 ") WITH (\n" +
                 " 'connector' = 'print'\n" +
                 ")";
@@ -50,12 +49,7 @@ public class FlinkTimestampExample {
         tEnv.executeSql(sinkDDL);
 
         // SQL逻辑
-        String querySql = "SELECT ts_v ," +
-                " COUNT(1), " +
-                "TUMBLE_START(ts, INTERVAL '15' MINUTE) AS s, " +
-                "TUMBLE_END(ts, INTERVAL '15' MINUTE) AS e " +
-                "FROM cvs_source " +
-                "GROUP BY ts_v, TUMBLE(ts, INTERVAL '15' MINUTE)";
+        String querySql = "SELECT hiredate  + INTERVAL '999' DAY(3), TO_TIMESTAMP(FROM_UNIXTIME(ts / 1000)) FROM datagen_source ";
 
         String sql = "INSERT INTO print_sink " + querySql;
         tEnv.executeSql(sql);

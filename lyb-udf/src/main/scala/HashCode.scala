@@ -1,5 +1,3 @@
-package sql.function
-
 import org.apache.flink.table.functions.ScalarFunction
 
 class HashCode(factor:Double) extends ScalarFunction{

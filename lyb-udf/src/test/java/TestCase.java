@@ -5,8 +5,9 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.junit.Before;
 import org.junit.Test;
+import scalar.HashCode;
 
-import static org.apache.flink.table.api.Expressions.row;
+import static org.apache.flink.table.api.Expressions.*;
 
 /**
  * @author Yubin Li
@@ -15,10 +16,12 @@ import static org.apache.flink.table.api.Expressions.row;
 public class TestCase {
     private StreamTableEnvironment tableEnv;
     private Table source;
+    private StreamExecutionEnvironment env;
+
     @Before
     public void init(){
         EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env = StreamExecutionEnvironment.getExecutionEnvironment();
         this.tableEnv = StreamTableEnvironment.create(env, settings);
         this.source = tableEnv.fromValues(DataTypes.ROW(
                 DataTypes.FIELD("id", DataTypes.DECIMAL(10, 2)),
@@ -31,7 +34,14 @@ public class TestCase {
     @Test
     public void testScalar() throws Exception {
         tableEnv.createTemporaryView("source", source);
-        tableEnv.sqlQuery("select * from source");
+        Table result = tableEnv.sqlQuery("select * from source");
+        result.printSchema();
+        result.select($("name"),$("id")).execute().print();
+
+        HashCode function = new HashCode(10);
+        result.select($("id"), call(function,$("name")).as("hashcode"))
+                .execute()
+                .print();
 //        tableEnv.execute("scalar function");
     }
 }

@@ -1,4 +1,4 @@
-package sql.datatype;
+package datatype;
 
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

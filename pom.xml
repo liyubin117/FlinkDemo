@@ -13,6 +13,7 @@
         <module>lyb-udf</module>
         <module>lyb-core</module>
         <module>lyb-other</module>
+        <module>lyb-table</module>
     </modules>
 
     <properties>

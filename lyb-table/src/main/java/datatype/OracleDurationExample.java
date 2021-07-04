@@ -1,4 +1,4 @@
-package sql.datatype;
+package datatype;
 
 /**
  * 项目名称: Apache Flink 知其然，知其所以然 - datatype

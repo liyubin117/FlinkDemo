@@ -1,5 +1,3 @@
-package sql.function
-
 import org.apache.flink.table.functions.TableAggregateFunction
 import org.apache.flink.util.Collector
 

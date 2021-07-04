@@ -1,4 +1,4 @@
-package sql.datatype.timezone;
+package datatype.timezone;
 
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;

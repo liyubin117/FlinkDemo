@@ -1,23 +1,25 @@
-package sql
-
-import org.apache.flink.table.api.DataTypes
-import org.apache.flink.table.descriptors.{Csv, FileSystem, Schema}
-import sql.EnvDemo.bsTableEnv
-import org.apache.flink.table.api._
-import org.apache.flink.table.api.bridge.scala._
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.apache.flink.table.api.bridge.scala._
+import org.apache.flink.table.api.{DataTypes, _}
+import org.apache.flink.table.descriptors.{Csv, FileSystem, Schema}
 import org.apache.flink.types.Row
-import org.junit.{After, Assert, Before, Test}
-import sql.function.{Avg, HashCode, Split, Top2}
-import sql.EnvDemo.env
+import org.junit.{Assert, Before, Test}
 
 @Test
 class FunctionDemo extends Assert{
+  val env = StreamExecutionEnvironment.getExecutionEnvironment
+  val bsSettings = EnvironmentSettings.newInstance()
+    .useBlinkPlanner()
+    .inStreamingMode()
+    .build()
+  val bsTableEnv = StreamTableEnvironment.create(env, bsSettings)
+
   @Before
   def init()={
     env.setParallelism(1)
 
-    val filePath = "file/person.csv"
+    val filePath = "../file/person.csv"
     val schema = new Schema() //定义字段
       .field("id", DataTypes.BIGINT())
       .field("name", DataTypes.STRING())

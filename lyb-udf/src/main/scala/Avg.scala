@@ -1,5 +1,3 @@
-package sql.function
-
 import org.apache.flink.table.functions.AggregateFunction
 
 case class AvgAcc(var sum:Long, var num:Int)

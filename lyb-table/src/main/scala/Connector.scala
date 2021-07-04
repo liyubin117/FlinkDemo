@@ -1,8 +1,6 @@
-package sql
-
 import org.apache.flink.table.api.DataTypes
 import org.apache.flink.table.descriptors._
-import sql.EnvDemo.bsTableEnv
+import EnvDemo.bsTableEnv
 
 object Connector {
   def main(args: Array[String]): Unit = {

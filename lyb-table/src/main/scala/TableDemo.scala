@@ -1,10 +1,8 @@
-package sql
-
 import org.apache.flink.table.api._
 import org.apache.flink.table.descriptors.{Csv, FileSystem, Kafka, OldCsv, Schema}
 import org.apache.flink.api.scala._
 import org.apache.flink.table.api.bridge.scala._
-import sql.EnvDemo.{bsTableEnv, env}
+import EnvDemo.{bsTableEnv, env}
 
 object TableDemo extends App{
   //  def main(args: Array[String]): Unit = {

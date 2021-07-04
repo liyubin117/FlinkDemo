@@ -1,6 +1,4 @@
-package sql
-
-import sql.EnvDemo.{bsTableEnv, env}
+import EnvDemo.{bsTableEnv, env}
 import org.apache.flink.api.scala._
 import org.apache.flink.table.api._
 import org.apache.flink.streaming.api._
@@ -8,7 +6,7 @@ import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrderness
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.table.descriptors.{Csv, Kafka, Rowtime, Schema}
 import org.apache.flink.types.Row
-import sql.TableDemo.schema
+import TableDemo.schema
 
 object TimeAndWindow {
   def main(args: Array[String]): Unit = {
