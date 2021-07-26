@@ -1,19 +1,19 @@
 package complex
 
 import java.nio.charset.Charset
-
 import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import sql.EnvDemo.env
-import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.shaded.guava18.com.google.common.hash.{BloomFilter, Funnels}
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.util.Collector
+import org.apache.flink.streaming.api.scala._
 
 case class ResultElement (in:String, num:Long)
 object GlobalDistinctAgg {
   def main(args: Array[String]): Unit = {
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
     //使用布隆过滤器非精准去重聚合
     env.socketTextStream("localhost", 9888)
       .keyBy(x => x.split(",")(0))

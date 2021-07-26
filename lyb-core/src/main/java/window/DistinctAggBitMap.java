@@ -1,4 +1,4 @@
-package complex;
+package window;
 
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.configuration.Configuration;

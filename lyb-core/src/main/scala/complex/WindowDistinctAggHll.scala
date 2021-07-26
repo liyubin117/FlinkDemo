@@ -1,18 +1,18 @@
 package complex
 import java.util.Date
-
 import net.agkn.hll.HLL
 import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.streaming.api.windowing.time.Time
-import sql.EnvDemo.env
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 
 case class Record(var id:Long, var ts:Long)
 object WindowDistinctAggHll {
   def main(args: Array[String]): Unit = {
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
     println(new Date())
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     env.socketTextStream("localhost",9888)

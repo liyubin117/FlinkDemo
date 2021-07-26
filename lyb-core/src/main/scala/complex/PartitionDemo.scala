@@ -1,9 +1,10 @@
 package complex
 
 import org.apache.flink.api.common.functions.Partitioner
-import sql.EnvDemo.env
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 
 object PartitionDemo extends App{
+  val env = StreamExecutionEnvironment.getExecutionEnvironment
   env.setParallelism(2)
   import org.apache.flink.api.scala._
   val text = env.socketTextStream("localhost", 9888)
