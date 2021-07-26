@@ -14,7 +14,7 @@ public class Env {
     public static StreamTableEnvironment tableEnv;
     static {
         env.setParallelism(1);
-        env.getCheckpointConfig().setCheckpointInterval(60000);
+        env.getCheckpointConfig().setCheckpointInterval(20000);
         tableEnv = StreamTableEnvironment.create(env, settings);
     }
 }
