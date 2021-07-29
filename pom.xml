@@ -14,6 +14,7 @@
         <module>lyb-core</module>
         <module>lyb-other</module>
         <module>lyb-table</module>
+        <module>flink-1.14</module>
     </modules>
 
     <properties>

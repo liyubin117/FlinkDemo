@@ -42,6 +42,8 @@ public class TestCase {
         result.select($("id"), call(function,$("name")).as("hashcode"))
                 .execute()
                 .print();
-//        tableEnv.execute("scalar function");
+
+        tableEnv.createTemporarySystemFunction("hash", function);
+        result.select("hash(name)").execute().print();
     }
 }
