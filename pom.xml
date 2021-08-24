@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.lyb</groupId>
-    <artifactId>FlinkDemo</artifactId>
+    <artifactId>flink-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -14,7 +14,6 @@
         <module>lyb-core</module>
         <module>lyb-other</module>
         <module>lyb-table</module>
-        <module>flink-1.14</module>
     </modules>
 
     <properties>

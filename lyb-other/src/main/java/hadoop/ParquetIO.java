@@ -21,8 +21,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
 
-public class ReadParquet {
-    static Logger logger = Logger.getLogger(ReadParquet.class);
+public class ParquetIO {
+    static Logger logger = Logger.getLogger(ParquetIO.class);
 
     public static void main(String[] args) throws Exception {
 
