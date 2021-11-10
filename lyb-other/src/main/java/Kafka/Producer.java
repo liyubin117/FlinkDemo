@@ -24,7 +24,7 @@ public class Producer implements Runnable{
         properties.put("bootstrap.servers", KafkaConfig.KAFKA);
         properties.put("key.serializer", KafkaConfig.SERIALIZER);
         properties.put("value.serializer", KafkaConfig.SERIALIZER);
-        properties.put("request.required.acks", KafkaConfig.ACKS);
+//        properties.put("request.required.acks", KafkaConfig.ACKS);
         this.topic = topic;
         producer = new KafkaProducer<Integer,String>(properties);
         this.interval = interval;
@@ -35,7 +35,7 @@ public class Producer implements Runnable{
         int i=0;
         while(true){
             List<String> msgList = KafkaConfig.getMsgList();
-            msgList = Arrays.asList("{\"userid\":9, \"name\":\"this is a greate message written by liyubin\"}");
+            msgList = Arrays.asList("{\"userid\":90300,\"text\":\"2021-10-11\", \"action\":\"10:20:30\", \"ts_str\":\"2021-11-05 10:20:30\", \"appver\":\"v2.0\", \"ts\":\"2021-11-05 10:20:30\"}");
             for(String msg:msgList){
                 producer.send(new ProducerRecord(this.topic, msg));
             }

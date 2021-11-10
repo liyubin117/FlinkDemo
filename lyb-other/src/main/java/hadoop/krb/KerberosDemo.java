@@ -1,4 +1,4 @@
-package hadoop;
+package hadoop.krb;
 
 
 import org.apache.hadoop.conf.Configuration;
