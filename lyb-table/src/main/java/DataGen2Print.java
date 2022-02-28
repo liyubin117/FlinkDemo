@@ -1,7 +1,3 @@
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
 /**
  * 功能描述: 从Kafka读取消息数据，并在控制台进行打印。
  * 操作步骤: 1. 直接执行作业，看到输出
@@ -29,25 +25,13 @@ public class DataGen2Print {
                 ")";
 
 
-        // 创建执行环境
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
-        StreamExecutionEnvironment sEnv = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        StreamTableEnvironment tEnv = StreamTableEnvironment.create(sEnv, settings);
 
         //注册source和sink
-        tEnv.executeSql(sourceDDL);
-        tEnv.executeSql(sinkDDL);
+        Env.tableEnv.executeSql(sourceDDL);
+        Env.tableEnv.executeSql(sinkDDL);
 
         String sql = "INSERT INTO rst SELECT stu.name, stu.age-2, 35+2 FROM stu";
 
-        String plan = tEnv.explainSql(sql);
-        System.out.println(plan);
-
-        tEnv.executeSql(sql);
+        Env.tableEnv.executeSql(sql);
     }
 }

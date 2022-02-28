@@ -3,7 +3,7 @@ create table test.flink_test (name varchar(200), userid int);
  */
 
 public class Datagen2Jdbc {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String datagen = "CREATE TABLE datagen (\n" +
                 " name STRING , \n" +
                 " userid INT \n" +
