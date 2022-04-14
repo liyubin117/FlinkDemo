@@ -17,7 +17,7 @@
     </modules>
 
     <properties>
-        <scala.version>2.11</scala.version>
+        <scala.version>2.12</scala.version>
         <flink.version>1.12.4</flink.version>
         <kafka.version>2.8.0</kafka.version>
         <kafka-kafka.version>0.10</kafka-kafka.version>
@@ -134,7 +134,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch6_2.11</artifactId>
+            <artifactId>flink-connector-elasticsearch6_${scala.version}</artifactId>
             <version>${flink.version}</version>
             <exclusions>
                 <exclusion>
