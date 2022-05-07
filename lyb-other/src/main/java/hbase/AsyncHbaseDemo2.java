@@ -1,4 +1,4 @@
-package hadoop;//package hadoop;
+package hbase;//package hadoop;
 //import java.util.List;
 //import java.util.ArrayList;
 //

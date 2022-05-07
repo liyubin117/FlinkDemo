@@ -1,4 +1,4 @@
-package hadoop;
+package hive;
 
 
 import org.apache.hadoop.hive.ql.exec.Description;

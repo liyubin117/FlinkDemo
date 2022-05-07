@@ -1,4 +1,4 @@
-package hadoop;
+package hbase;
 
 import com.stumbleupon.async.Callback;
 import com.stumbleupon.async.Deferred;

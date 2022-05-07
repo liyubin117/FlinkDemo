@@ -1,5 +1,4 @@
-package hadoop
-
+package hbase
 
 import org.hbase.async._
 import com.stumbleupon.async._

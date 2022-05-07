@@ -1,4 +1,4 @@
-package hadoop;
+package hadoop.format;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
