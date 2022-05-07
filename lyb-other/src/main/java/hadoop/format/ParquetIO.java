@@ -28,18 +28,18 @@ public class ParquetIO {
         String content = "hangzhou 1.1.1.1\n" +
                 "beijing 2.2.2.2";
 
-        parquetWriter("file\\out.file", content);
-        parquetReaderV2("file\\out.file");
+        parquetWriter("file/out.file", content);
+        parquetReaderV2("file/out.file");
 
     }
 
 
     static void parquetReaderV2(String inPath) throws Exception {
         GroupReadSupport readSupport = new GroupReadSupport();
-        Builder<Group> reader = ParquetReader.builder(readSupport, new Path(inPath));
-        ParquetReader<Group> build = reader.build();
-        Group line = null;
-        while ((line = build.read()) != null) {
+        Builder<Group> builder = ParquetReader.builder(readSupport, new Path(inPath));
+        ParquetReader<Group> parquetReader = builder.build();
+        Group line;
+        while ((line = parquetReader.read()) != null) {
             Group time = line.getGroup("time", 0);
             //通过下标和字段名称都可以获取
             /*System.out.println(line.getString(0, 0)+"\t"+
