@@ -25,11 +25,11 @@ public class ParquetIO {
     static Logger logger = Logger.getLogger(ParquetIO.class);
 
     public static void main(String[] args) throws Exception {
+        String content = "hangzhou 1.1.1.1\n" +
+                "beijing 2.2.2.2";
 
-//        parquetWriter("file\\out.file","D:\\workspace\\sloth\\sloth-kernel-flink-sql-1.12.2\\src\\test\\resources\\in.file");
+        parquetWriter("file\\out.file", content);
         parquetReaderV2("file\\out.file");
-
-        //        parquetReaderV2("file\\begin-0-2end");
 
     }
 
@@ -41,17 +41,16 @@ public class ParquetIO {
         Group line = null;
         while ((line = build.read()) != null) {
             Group time = line.getGroup("time", 0);
-//通过下标和字段名称都可以获取
-/*System.out.println(line.getString(0, 0)+"\t"+
-　　　　　　　　line.getString(1, 0)+"\t"+
-　　　　　　　　time.getInteger(0, 0)+"\t"+
-　　　　　　　　time.getString(1, 0)+"\t");*/
+            //通过下标和字段名称都可以获取
+            /*System.out.println(line.getString(0, 0)+"\t"+
+            　　　　　　　　line.getString(1, 0)+"\t"+
+            　　　　　　　　time.getInteger(0, 0)+"\t"+
+            　　　　　　　　time.getString(1, 0)+"\t");*/
 
             System.out.println(line.getString("city", 0) + "\t" +
                     line.getString("ip", 0) + "\t" +
                     time.getInteger("ttl", 0) + "\t" +
                     time.getString("ttl2", 0) + "\t");
-            //System.out.println(line.toString());
 
         }
         System.out.println("读取结束");
@@ -71,10 +70,13 @@ public class ParquetIO {
 
     /**
      * @param outPath 　　输出Parquet格式
-     * @param inPath  输入普通文本文件
      * @throws IOException
      */
-    static void parquetWriter(String outPath, String inPath) throws IOException {
+    static void parquetWriter(String outPath, String content) throws IOException {
+        File file = new File(outPath);
+        if (file.exists()) {
+            file.delete();
+        }
         MessageType schema = MessageTypeParser.parseMessageType("message Pair {\n" +
                 " required binary city (UTF8);\n" +
                 " required binary ip (UTF8);\n" +
@@ -90,11 +92,10 @@ public class ParquetIO {
         GroupWriteSupport writeSupport = new GroupWriteSupport();
         writeSupport.setSchema(schema, configuration);
         ParquetWriter<Group> writer = new ParquetWriter<Group>(path, configuration, writeSupport);
-//把本地文件读取进去，用来生成parquet格式文件
-        BufferedReader br = new BufferedReader(new FileReader(new File(inPath)));
-        String line = "";
+
         Random r = new Random();
-        while ((line = br.readLine()) != null) {
+        String[] contentArr = content.split("\n");
+        for (String line : contentArr) {
             String[] strs = line.split("\\s+");
             if (strs.length == 2) {
                 Group group = factory.newGroup()
