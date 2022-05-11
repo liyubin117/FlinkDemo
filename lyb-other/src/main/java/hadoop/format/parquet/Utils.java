@@ -28,6 +28,8 @@ import static hadoop.format.parquet.MessageTypeGenerationType.CODE;
  * @author Yubin Li
  */
 public class Utils {
+    public static final String DELIMITER = "------";
+
     public static MessageType getMessageType(MessageTypeGenerationType type, String inPath) throws IOException {
         MessageType result;
         switch (type) {
@@ -115,7 +117,7 @@ public class Utils {
         System.out.println("----block level metadata----");
         List<BlockMetaData> bml = pm.getBlocks();
         for(BlockMetaData bm : bml) {
-            System.out.println(bm.getRowCount() + "\t" + bm.getTotalByteSize());
+            System.out.println("rowCount: " + bm.getRowCount() + "\t" + "totalByteSize: " + bm.getTotalByteSize());
             List<ColumnChunkMetaData> cml = bm.getColumns();
             for (ColumnChunkMetaData cm : cml) {
                 Statistics stats = cm.getStatistics();
@@ -137,7 +139,6 @@ public class Utils {
         for (String str : descriptor.getPath()) System.out.println("field: " + str);
         System.out.println(descriptor.getType());
 
-        //记得关闭
         parquetFileReader.close();
     }
 
@@ -166,23 +167,24 @@ public class Utils {
         MessageType schema = getMessageType(CODE, null);
         GroupFactory factory = new SimpleGroupFactory(schema);
         Path path = new Path(outPath);
-        CompressionCodecName compressionCodec = CompressionCodecName.SNAPPY;
+        CompressionCodecName compressionCodec = CompressionCodecName.UNCOMPRESSED;
         Configuration configuration = new Configuration();
         GroupWriteSupport writeSupport = new GroupWriteSupport();
-        writeSupport.setSchema(schema, configuration);
-        ParquetWriter<Group> writer = new ParquetWriter<Group>(path, configuration, writeSupport);
+        GroupWriteSupport.setSchema(schema, configuration);
+        writeSupport.init(configuration);
+        ParquetWriter<Group> writer = new ParquetWriter<Group>(path, writeSupport, compressionCodec, 9999, 999);
 
         Random r = new Random();
         String[] contentArr = content.split("\n");
         for (String line : contentArr) {
-            String[] strs = line.split("\\s+");
-            if (strs.length == 2) {
+            String[] strs = line.split(DELIMITER);
+            if (strs.length == 4) {
                 Group group = factory.newGroup()
                         .append("bookName", strs[0])
                         .append("price", Double.valueOf(strs[1]));
                 Group author = group.addGroup("author");
-                author.append("age", r.nextInt(9) + 1);
-                author.append("name", r.nextInt(9) + "_a");
+                author.append("age", Integer.valueOf(strs[2]));
+                author.append("name", strs[3]);
                 writer.write(group);
             }
         }
