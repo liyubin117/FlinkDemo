@@ -1,5 +1,6 @@
 package hadoop.format.parquet;
 
+import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.ParquetReadOptions;
@@ -20,6 +21,7 @@ import org.apache.parquet.schema.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static hadoop.format.parquet.MessageTypeGenerationType.CODE;
@@ -116,15 +118,28 @@ public class Utils {
 
         System.out.println("----block level metadata----");
         List<BlockMetaData> bml = pm.getBlocks();
+        Map<ColumnPath, Statistics> sumStats = Maps.newHashMap();
+        int index = 0;
         for(BlockMetaData bm : bml) {
             System.out.println("rowCount: " + bm.getRowCount() + "\t" + "totalByteSize: " + bm.getTotalByteSize());
             List<ColumnChunkMetaData> cml = bm.getColumns();
             for (ColumnChunkMetaData cm : cml) {
                 Statistics stats = cm.getStatistics();
-                System.out.println(cm.getPath() + "\t" + stats);
+                ColumnPath path = cm.getPath();
+                PrimitiveType.PrimitiveTypeName typeName = cm.getPrimitiveType().getPrimitiveTypeName();
+                Statistics mid;
+                if (!sumStats.containsKey(path)) {
+                    mid = stats;
+                } else {
+                    mid = sumStats.get(path);
+                    mid.mergeStatistics(stats);
+                }
+                sumStats.put(path, mid);
+                System.out.println(path + "\t" + typeName + "\t" + stats);
             }
-            System.out.println("--per block--");
+            System.out.println("--per block " + index++ + " --");
         }
+        sumStats.forEach((k, v) -> System.out.println(k + "\t" + v));
 
         System.out.println("----file level metadata----");
         FileMetaData fm = pm.getFileMetaData();

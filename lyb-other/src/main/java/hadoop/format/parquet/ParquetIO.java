@@ -16,7 +16,7 @@ public class ParquetIO {
         Faker faker = new Faker();
         Random random = new Random();
         StringBuffer buffer = new StringBuffer();
-        for (long i = 0; i < 999; i++) {
+        for (long i = 0; i < 199; i++) {
             Book book = faker.book();
             String desc = book.title() + DELIMITER + Math.random() * 100 + DELIMITER + random.nextInt(1000) + DELIMITER + book.author();
 //            System.out.println(desc);
