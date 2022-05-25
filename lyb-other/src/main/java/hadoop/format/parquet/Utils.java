@@ -16,13 +16,21 @@ import org.apache.parquet.hadoop.example.GroupReadSupport;
 import org.apache.parquet.hadoop.example.GroupWriteSupport;
 import org.apache.parquet.hadoop.metadata.*;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
+import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.JulianFields;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static hadoop.format.parquet.MessageTypeGenerationType.CODE;
 
@@ -31,6 +39,7 @@ import static hadoop.format.parquet.MessageTypeGenerationType.CODE;
  */
 public class Utils {
     public static final String DELIMITER = "------";
+    public static Logger LOG = LoggerFactory.getLogger(Utils.class);
 
     public static MessageType getMessageType(MessageTypeGenerationType type, String inPath) throws IOException {
         MessageType result;
@@ -43,6 +52,7 @@ public class Utils {
                         .requiredGroup()
                         .required(PrimitiveType.PrimitiveTypeName.BINARY).as(OriginalType.UTF8).named("name")
                         .required(PrimitiveType.PrimitiveTypeName.INT32).named("age")
+                        .required(PrimitiveType.PrimitiveTypeName.INT96).named("cash")
                         .named("author")
                         .named("Book");
                 break;
@@ -54,6 +64,7 @@ public class Utils {
                         "  repeated group author {\n" +
                         "    required binary name (UTF8);\n" +
                         "    required int32 age;\n" +
+                        "    required int96 cash;\n" +
                         "  }\n" +
                         "}";
                 result = MessageTypeParser.parseMessageType(schemaString);
@@ -120,13 +131,14 @@ public class Utils {
         List<BlockMetaData> bml = pm.getBlocks();
         Map<ColumnPath, Statistics> sumStats = Maps.newHashMap();
         int index = 0;
-        for(BlockMetaData bm : bml) {
+        for (BlockMetaData bm : bml) {
             System.out.println("rowCount: " + bm.getRowCount() + "\t" + "totalByteSize: " + bm.getTotalByteSize());
             List<ColumnChunkMetaData> cml = bm.getColumns();
             for (ColumnChunkMetaData cm : cml) {
                 Statistics stats = cm.getStatistics();
                 ColumnPath path = cm.getPath();
-                PrimitiveType.PrimitiveTypeName typeName = cm.getPrimitiveType().getPrimitiveTypeName();
+                PrimitiveType type = cm.getPrimitiveType();
+                LOG.info(String.valueOf(stats.type().equals(type)));  //note that column stat get the same type as column
                 Statistics mid;
                 if (!sumStats.containsKey(path)) {
                     mid = stats;
@@ -135,7 +147,13 @@ public class Utils {
                     mid.mergeStatistics(stats);
                 }
                 sumStats.put(path, mid);
-                System.out.println(path + "\t" + typeName + "\t" + stats);
+                System.out.println(path + "\t" +
+                        path.toDotString() + "\t" +
+                        type.getPrimitiveTypeName() + "\t" +
+                        type.getName() + "\t" +
+                        stats + "\t" +
+                        stats.hasNonNullValue() + "\t" +
+                        type.getDecimalMetadata());
             }
             System.out.println("--per block " + index++ + " --");
         }
@@ -144,7 +162,7 @@ public class Utils {
         System.out.println("----file level metadata----");
         FileMetaData fm = pm.getFileMetaData();
         System.out.println(fm.getCreatedBy());
-        fm.getKeyValueMetaData().forEach((x,y) -> System.out.println(x + "=" + y));
+        fm.getKeyValueMetaData().forEach((x, y) -> System.out.println(x + "=" + y));
         MessageType schema = fm.getSchema();
         List<ColumnDescriptor> columns = schema.getColumns();
         System.out.println("fields num: " + columns.size());
@@ -174,7 +192,7 @@ public class Utils {
      * @param outPath 　　输出Parquet格式
      * @throws IOException
      */
-    public static void parquetWrite(String outPath, String content) throws IOException {
+    public static void parquetWrite(String outPath, String content) throws IOException, ParseException {
         File file = new File(outPath);
         if (file.exists()) {
             file.delete();
@@ -189,21 +207,51 @@ public class Utils {
         writeSupport.init(configuration);
         ParquetWriter<Group> writer = new ParquetWriter<Group>(path, writeSupport, compressionCodec, 9999, 999);
 
-        Random r = new Random();
         String[] contentArr = content.split("\n");
+
         for (String line : contentArr) {
             String[] strs = line.split(DELIMITER);
-            if (strs.length == 4) {
+            if (strs.length == 5) {
                 Group group = factory.newGroup()
                         .append("bookName", strs[0])
                         .append("price", Double.valueOf(strs[1]));
                 Group author = group.addGroup("author");
                 author.append("age", Integer.valueOf(strs[2]));
                 author.append("name", strs[3]);
+                author.append("cash", convertTimestampToParquetType(strs[4]));
                 writer.write(group);
             }
         }
         System.out.println("write end");
         writer.close();
+    }
+
+    public static Binary convertTimestampToParquetType (String timestamp) throws ParseException {
+        String value = timestamp;
+
+        final long NANOS_PER_HOUR = TimeUnit.HOURS.toNanos(1);
+        final long NANOS_PER_MINUTE = TimeUnit.MINUTES.toNanos(1);
+        final long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+
+// Parse date
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(parser.parse(value));
+
+// Calculate Julian days and nanoseconds in the day
+        LocalDate dt = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+        int julianDays = (int) JulianFields.JULIAN_DAY.getFrom(dt);
+        long nanos = (cal.get(Calendar.HOUR_OF_DAY) * NANOS_PER_HOUR)
+                + (cal.get(Calendar.MINUTE) * NANOS_PER_MINUTE)
+                + (cal.get(Calendar.SECOND) * NANOS_PER_SECOND);
+
+// Write INT96 timestamp
+        byte[] timestampBuffer = new byte[12];
+        ByteBuffer buf = ByteBuffer.wrap(timestampBuffer);
+        buf.order(ByteOrder.LITTLE_ENDIAN).putLong(nanos).putInt(julianDays);
+
+// This is the properly encoded INT96 timestamp
+        Binary tsValue = Binary.fromReusedByteArray(timestampBuffer);
+        return tsValue;
     }
 }
