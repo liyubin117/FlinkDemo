@@ -14,7 +14,7 @@ import org.hbase.async.PutRequest;
  * 异步hbase大大提供了大数据量下hbase的写入性能，是一个不错的优化点
  * create 'lyb_testasync','f1','f2'
  */
-public class AsyncHbaseDemo {
+public class AsyncHbaseDemo1 {
     public static void main(String[] args) {
         HBaseClient client = new HBaseClient("fuxi-luoge-76");
 
