@@ -38,6 +38,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>4.6.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.lyb</groupId>
             <artifactId>lyb-other</artifactId>
             <version>1.0-SNAPSHOT</version>
