@@ -1,12 +1,19 @@
 package org.lyb.oracle;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.OracleContainer;
+import org.testcontainers.utility.MountableFile;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class OracleE2eTest {
     public static final String IMAGE = "gvenzl/oracle-xe:21-slim-faststart";
@@ -19,9 +26,9 @@ public class OracleE2eTest {
     @Before
     public void init() {
         OracleContainer oracle = new OracleContainer(IMAGE)
-                .withDatabaseName("testDB")
-                .withUsername("testUser")
-                .withPassword("testPassword");
+                .withUsername("LYB")
+                .withPassword("LYB")
+                .withCopyFileToContainer(MountableFile.forClasspathResource("oracle/init.sql"), "/container-entrypoint-startdb.d/init.sql");
         oracle.start();
         jdbcUrl = oracle.getJdbcUrl();
         user = oracle.getUsername();
@@ -42,9 +49,12 @@ public class OracleE2eTest {
                 user,
                 passwd);
         Statement stat = conn.createStatement();
-        stat.execute("create table t1 (id int, name varchar2(200))");
-        stat.execute("insert into t1 values (1, 'one')");
-        ResultSet rs = stat.executeQuery("select id, name from t1");
+        stat.execute("create user user1 identified by user1");
+        stat.execute("GRANT UNLIMITED TABLESPACE TO user1");
+        stat.execute("create table user1.t1 (id int, name varchar2(200))");
+        stat.execute("insert into user1.t1 values (1, 'one')");
+        Assertions.assertThat("lyb").isNotEqualTo(defaultDB);
+        ResultSet rs = stat.executeQuery("select id, name from user1.t1");
         ResultSetMetaData rsmd = rs.getMetaData();
         while (rs.next()) {
             for (int i = 0; i < rsmd.getColumnCount(); i++) {
