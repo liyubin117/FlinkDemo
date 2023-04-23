@@ -25,6 +25,7 @@
         <kudu.version>1.7.0</kudu.version>
         <hive.version>3.1.2</hive.version>
         <akka.version>2.5.12</akka.version>
+        <spotless.version>2.27.2</spotless.version>
 
         <logback.version>1.2.9</logback.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -251,5 +252,40 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <java>
+                        <googleJavaFormat>
+                            <version>1.7</version>
+                            <style>AOSP</style>
+                        </googleJavaFormat>
+<!--                        <importOrder>-->
+<!--                            <order>org.apache.flink.shaded,,javax,java,scala,\#</order>-->
+<!--                        </importOrder>-->
+                        <includes>
+                            <include>src/**/*.java</include>
+                        </includes>
+                        <removeUnusedImports />
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

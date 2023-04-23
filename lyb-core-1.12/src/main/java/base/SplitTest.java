@@ -1,16 +1,16 @@
-package base;////在1.12.0无法使用
+package base; //// 在1.12.0无法使用
 //
-//package base;
+// package base;
 //
-//import org.apache.flink.api.common.functions.MapFunction;
-//import org.apache.flink.streaming.api.collector.selector.OutputSelector;
-//import org.apache.flink.streaming.api.datastream.DataStream;
-//import org.apache.flink.streaming.api.datastream.SplitStream;
-//import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+// import org.apache.flink.api.common.functions.MapFunction;
+// import org.apache.flink.streaming.api.collector.selector.OutputSelector;
+// import org.apache.flink.streaming.api.datastream.DataStream;
+// import org.apache.flink.streaming.api.datastream.SplitStream;
+// import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 //
-//import java.util.*;
+// import java.util.*;
 //
-//public class SplitTest {
+// public class SplitTest {
 //    public static void main(String[] args) {
 //        Map<String,List<List<String>>> db = new HashMap<>();
 //        Map<String,List<List<String>>> index = new HashMap<>();
@@ -40,7 +40,8 @@ package base;////在1.12.0无法使用
 //
 //        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 //        DataStream<Map<String,List<List<String>>>> input = env.fromElements(db,index,error);
-//        SplitStream<Map<String,List<List<String>>>> splitStream = input.split(new OutputSelector<Map<String, List<List<String>>>>() {
+//        SplitStream<Map<String,List<List<String>>>> splitStream = input.split(new
+// OutputSelector<Map<String, List<List<String>>>>() {
 //                    @Override
 //                    public Iterable<String> select(Map<String, List<List<String>>> value) {
 //                        List<String> output = new ArrayList<>();
@@ -59,14 +60,16 @@ package base;////在1.12.0无法使用
 //        splitStream.select("db","index")
 //                .map(new MapFunction<Map<String, List<List<String>>>, List<List<String>>>() {
 //                         @Override
-//                         public List<List<String>> map(Map<String, List<List<String>>> value) throws Exception {
+//                         public List<List<String>> map(Map<String, List<List<String>>> value)
+// throws Exception {
 //                             return value.get("actions");
 //                         }
 //                     }).print();
 //        splitStream.select("error")
 //                .map(new MapFunction<Map<String, List<List<String>>>, List<List<String>>>() {
 //                    @Override
-//                    public List<List<String>> map(Map<String, List<List<String>>> value) throws Exception {
+//                    public List<List<String>> map(Map<String, List<List<String>>> value) throws
+// Exception {
 //                        value.get("actions").add(Arrays.asList("!!!!!"));
 //                        return value.get("actions");
 //                    }
@@ -78,4 +81,4 @@ package base;////在1.12.0无法使用
 //            e.printStackTrace();
 //        }
 //    }
-//}
+// }

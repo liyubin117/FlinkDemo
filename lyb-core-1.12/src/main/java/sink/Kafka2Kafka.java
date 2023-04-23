@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import java.util.Properties;
 
 /**
  *   服务端
@@ -16,7 +17,6 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
  *   kafka-console-consumer.sh --bootstrap-server spark:9992 --topic flink-topic2
  */
 
-import java.util.Properties;
 public class Kafka2Kafka {
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

@@ -1,5 +1,7 @@
 package sink;
 
+import java.io.IOException;
+import java.util.Properties;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -10,16 +12,13 @@ import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Properties;
-
 public abstract class HBaseSink<T> extends RichSinkFunction<T> {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private Connection conn;
     private String tableName;
     private Properties p;
 
-    public HBaseSink(String tableName,Properties p){
+    public HBaseSink(String tableName, Properties p) {
         this.tableName = tableName;
         this.p = p;
     }
@@ -38,12 +37,11 @@ public abstract class HBaseSink<T> extends RichSinkFunction<T> {
         log.info("Flink-hbase close connection");
     }
 
-
     public Table getTable() throws IOException {
         return conn.getTable(TableName.valueOf(tableName));
     }
 
-    public Logger getLogger(){
+    public Logger getLogger() {
         return this.log;
     }
 
@@ -52,7 +50,7 @@ public abstract class HBaseSink<T> extends RichSinkFunction<T> {
 
         static Connection getConnection(Properties p) {
             org.apache.hadoop.conf.Configuration config = HBaseConfiguration.create();
-            for(Object key:p.keySet()){
+            for (Object key : p.keySet()) {
                 config.set(key.toString(), p.getProperty(key.toString()));
             }
             try {
@@ -64,25 +62,24 @@ public abstract class HBaseSink<T> extends RichSinkFunction<T> {
         }
 
         static void closeResource(Table table) {
-            if(table!=null) {
+            if (table != null) {
                 try {
                     table.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            //等待垃圾回收
+            // 等待垃圾回收
             table = null;
-            if(conn !=null) {
+            if (conn != null) {
                 try {
                     conn.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            //等待垃圾回收
+            // 等待垃圾回收
             conn = null;
         }
     }
-
 }

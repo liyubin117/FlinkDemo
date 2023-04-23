@@ -31,16 +31,16 @@ public class Alert {
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj == null) return false;
-        if(getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
 
         Alert other = (Alert) obj;
 
-        if(message == null) {
-            if(other.message != null) {
+        if (message == null) {
+            if (other.message != null) {
                 return false;
-            }else if(!message.equals(other.message)) {
+            } else if (!message.equals(other.message)) {
                 return false;
             }
         }

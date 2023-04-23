@@ -1,13 +1,13 @@
-package base;//package base;
+package base; // package base;
 //
-//import org.apache.flink.api.java.DataSet;
-//import org.apache.flink.api.java.ExecutionEnvironment;
-//import org.apache.flink.api.java.operators.DeltaIteration;
-//import org.apache.flink.api.java.tuple.Tuple2;
+// import org.apache.flink.api.java.DataSet;
+// import org.apache.flink.api.java.ExecutionEnvironment;
+// import org.apache.flink.api.java.operators.DeltaIteration;
+// import org.apache.flink.api.java.tuple.Tuple2;
 //
-//import java.util.ArrayList;
+// import java.util.ArrayList;
 //
-//public class Test {
+// public class Test {
 //    private final static int MAX_ITERATION_NUM = 10;
 //
 //    public static void main(String[] args) throws Exception {
@@ -48,7 +48,8 @@ package base;//package base;
 //        DataSet<Tuple2<Integer, Integer>> edgesAsWorkset = env.fromCollection(edges);
 //
 //        int vertexIdIndex = 0;
-//        DeltaIteration<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>> iteration = verticesAsWorkset
+//        DeltaIteration<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>> iteration =
+// verticesAsWorkset
 //                .iterateDelta(verticesAsWorkset, MAX_ITERATION_NUM, vertexIdIndex);
 //
 //        DataSet<Tuple2<Integer, Integer>> delta = iteration.getWorkset()
@@ -60,4 +61,4 @@ package base;//package base;
 //
 //        finalDataSet.print();
 //    }
-//}
+// }

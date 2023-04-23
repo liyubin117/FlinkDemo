@@ -1,6 +1,6 @@
 package cep;
 
-public class TemperatureEvent extends MonitoringEvent{
+public class TemperatureEvent extends MonitoringEvent {
 
     public TemperatureEvent(String machineName) {
         super(machineName);
@@ -22,31 +22,34 @@ public class TemperatureEvent extends MonitoringEvent{
         int result = super.hashCode();
         long temp;
         temp = Double.doubleToLongBits(temperature);
-        result = (int) (prime * result +(temp ^ (temp >>> 32)));
+        result = (int) (prime * result + (temp ^ (temp >>> 32)));
 
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(!super.equals(obj)) return false;
-        if(getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (getClass() != obj.getClass()) return false;
 
         TemperatureEvent other = (TemperatureEvent) obj;
-        if(Double.doubleToLongBits(temperature) != Double.doubleToLongBits(other.temperature)) return false;
+        if (Double.doubleToLongBits(temperature) != Double.doubleToLongBits(other.temperature))
+            return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "TemperatureEvent [getTemperature()=" + getTemperature() + ", getMachineName=" + getTemperature() + "]";
+        return "TemperatureEvent [getTemperature()="
+                + getTemperature()
+                + ", getMachineName="
+                + getTemperature()
+                + "]";
     }
 
     public TemperatureEvent(String machineName, double temperature) {
         super(machineName);
         this.temperature = temperature;
     }
-
-
 }

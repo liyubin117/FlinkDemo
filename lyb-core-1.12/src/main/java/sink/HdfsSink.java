@@ -1,26 +1,28 @@
-package sink;////在1.12.0无法使用
+package sink; //// 在1.12.0无法使用
 //
-//package sink;
+// package sink;
 //
-//import org.apache.flink.streaming.api.datastream.DataStream;
-//import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+// import org.apache.flink.streaming.api.datastream.DataStream;
+// import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 //
-///*在1.12.0已经不能用
-//import org.apache.flink.streaming.connectors.fs.StringWriter;
-//import org.apache.flink.streaming.connectors.fs.bucketing.BucketingSink;
-//import org.apache.flink.streaming.connectors.fs.bucketing.DateTimeBucketer;*/
+/// *在1.12.0已经不能用
+// import org.apache.flink.streaming.connectors.fs.StringWriter;
+// import org.apache.flink.streaming.connectors.fs.bucketing.BucketingSink;
+// import org.apache.flink.streaming.connectors.fs.bucketing.DateTimeBucketer;*/
 //
-//import org.apache.flink.connector.file.sink
-//import org.apache.flink.streaming.connectors.fs.bucketing.BucketingSink;
-//import org.apache.flink.streaming.connectors.fs.bucketing.DateTimeBucketer;
+// import org.apache.flink.connector.file.sink
+// import org.apache.flink.streaming.connectors.fs.bucketing.BucketingSink;
+// import org.apache.flink.streaming.connectors.fs.bucketing.DateTimeBucketer;
 //
 //
-//public class HdfsSink {
+// public class HdfsSink {
 //    public static void main(String[] args) throws Exception {
-//        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+//        final StreamExecutionEnvironment env =
+// StreamExecutionEnvironment.getExecutionEnvironment();
 //        env.setParallelism(2);
 //
-//        //DataStream<Tuple4<String, Integer, String, String>> text = env.fromElements(new Tuple4("device1",1,"liyubin","male"));
+//        //DataStream<Tuple4<String, Integer, String, String>> text = env.fromElements(new
+// Tuple4("device1",1,"liyubin","male"));
 //        DataStream<String> socketStream = env.socketTextStream("my",9888);
 //
 //        BucketingSink<String> hdfsSink = new BucketingSink<>("hdfs://my:9000/flink/file1");
@@ -39,4 +41,4 @@ package sink;////在1.12.0无法使用
 //        socketStream.addSink(hdfsSink);
 //        env.execute("socket to hdfs");
 //    }
-//}
+// }

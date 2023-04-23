@@ -22,14 +22,14 @@ public abstract class MonitoringEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(obj == null) return false;
-        if(getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         MonitoringEvent other = (MonitoringEvent) obj;
-        if(machineName == null) {
-            if(other.machineName != null) {
+        if (machineName == null) {
+            if (other.machineName != null) {
                 return false;
-            }else if(!machineName.equals(other.machineName)) {
+            } else if (!machineName.equals(other.machineName)) {
                 return false;
             }
         }

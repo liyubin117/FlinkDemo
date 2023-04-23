@@ -1,5 +1,12 @@
 package async;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -17,21 +24,10 @@ import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExecutorUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Example to illustrates how to use {@link AsyncFunction}.
- */
+/** Example to illustrates how to use {@link AsyncFunction}. */
 public class AsyncIOExample {
 
     private static final Logger LOG = LoggerFactory.getLogger(AsyncIOExample.class);
@@ -41,10 +37,9 @@ public class AsyncIOExample {
     private static final String INGESTION_TIME = "IngestionTime";
     private static final String ORDERED = "ordered";
 
-    /**
-     * A checkpointed source.
-     */
-    private static class SimpleSource implements SourceFunction<Integer>, ListCheckpointed<Integer> {
+    /** A checkpointed source. */
+    private static class SimpleSource
+            implements SourceFunction<Integer>, ListCheckpointed<Integer> {
         private static final long serialVersionUID = 1L;
 
         private volatile boolean isRunning = true;
@@ -89,13 +84,12 @@ public class AsyncIOExample {
         }
     }
 
-
     /**
-     * An sample of {@link AsyncFunction} using a thread pool and executing working threads
-     * to simulate multiple async operations.
+     * An sample of {@link AsyncFunction} using a thread pool and executing working threads to
+     * simulate multiple async operations.
      *
-     * <p>For the real use case in production environment, the thread pool may stay in the
-     * async client.
+     * <p>For the real use case in production environment, the thread pool may stay in the async
+     * client.
      */
     private static class SampleAsyncFunction extends RichAsyncFunction<Integer, String> {
         private static final long serialVersionUID = 2098635244857937717L;
@@ -103,14 +97,14 @@ public class AsyncIOExample {
         private transient ExecutorService executorService;
 
         /**
-         * The result of multiplying sleepFactor with a random float is used to pause
-         * the working thread in the thread pool, simulating a time consuming async operation.
+         * The result of multiplying sleepFactor with a random float is used to pause the working
+         * thread in the thread pool, simulating a time consuming async operation.
          */
         private final long sleepFactor;
 
         /**
-         * The ratio to generate an exception to simulate an async error. For example, the error
-         * may be a TimeoutException while visiting HBase.
+         * The ratio to generate an exception to simulate an async error. For example, the error may
+         * be a TimeoutException while visiting HBase.
          */
         private final float failRatio;
 
@@ -137,33 +131,35 @@ public class AsyncIOExample {
 
         @Override
         public void asyncInvoke(final Integer input, final ResultFuture<String> resultFuture) {
-            executorService.submit(() -> {
-                // wait for while to simulate async operation here
-                long sleep = (long) (ThreadLocalRandom.current().nextFloat() * sleepFactor);
-                try {
-                    Thread.sleep(sleep);
+            executorService.submit(
+                    () -> {
+                        // wait for while to simulate async operation here
+                        long sleep = (long) (ThreadLocalRandom.current().nextFloat() * sleepFactor);
+                        try {
+                            Thread.sleep(sleep);
 
-                    if (ThreadLocalRandom.current().nextFloat() < failRatio) {
-                        resultFuture.completeExceptionally(new Exception("wahahahaha..."));
-                    } else {
-                        resultFuture.complete(
-                                Collections.singletonList("key-" + (input % 10)));
-                    }
-                } catch (InterruptedException e) {
-                    resultFuture.complete(new ArrayList<>(0));
-                }
-            });
+                            if (ThreadLocalRandom.current().nextFloat() < failRatio) {
+                                resultFuture.completeExceptionally(new Exception("wahahahaha..."));
+                            } else {
+                                resultFuture.complete(
+                                        Collections.singletonList("key-" + (input % 10)));
+                            }
+                        } catch (InterruptedException e) {
+                            resultFuture.complete(new ArrayList<>(0));
+                        }
+                    });
         }
     }
 
     private static void printUsage() {
-        System.out.println("To customize example, use: AsyncIOExample [--fsStatePath <path to fs state>] " +
-                "[--checkpointMode <exactly_once or at_least_once>] " +
-                "[--maxCount <max number of input from source, -1 for infinite input>] " +
-                "[--sleepFactor <interval to sleep for each stream element>] [--failRatio <possibility to throw exception>] " +
-                "[--waitMode <ordered or unordered>] [--waitOperatorParallelism <parallelism for async wait operator>] " +
-                "[--eventType <EventTime or IngestionTime>] [--shutdownWaitTS <milli sec to wait for thread pool>]" +
-                "[--timeout <Timeout for the asynchronous operations>]");
+        System.out.println(
+                "To customize example, use: AsyncIOExample [--fsStatePath <path to fs state>] "
+                        + "[--checkpointMode <exactly_once or at_least_once>] "
+                        + "[--maxCount <max number of input from source, -1 for infinite input>] "
+                        + "[--sleepFactor <interval to sleep for each stream element>] [--failRatio <possibility to throw exception>] "
+                        + "[--waitMode <ordered or unordered>] [--waitOperatorParallelism <parallelism for async wait operator>] "
+                        + "[--eventType <EventTime or IngestionTime>] [--shutdownWaitTS <milli sec to wait for thread pool>]"
+                        + "[--timeout <Timeout for the asynchronous operations>]");
     }
 
     public static void main(String[] args) throws Exception {
@@ -208,16 +204,34 @@ public class AsyncIOExample {
         final String lineSeparator = System.getProperty("line.separator");
 
         configStringBuilder
-                .append("Job configuration").append(lineSeparator)
-                .append("FS state path=").append(statePath).append(lineSeparator)
-                .append("Checkpoint mode=").append(cpMode).append(lineSeparator)
-                .append("Max count of input from source=").append(maxCount).append(lineSeparator)
-                .append("Sleep factor=").append(sleepFactor).append(lineSeparator)
-                .append("Fail ratio=").append(failRatio).append(lineSeparator)
-                .append("Waiting mode=").append(mode).append(lineSeparator)
-                .append("Parallelism for async wait operator=").append(taskNum).append(lineSeparator)
-                .append("Event type=").append(timeType).append(lineSeparator)
-                .append("Shutdown wait timestamp=").append(shutdownWaitTS);
+                .append("Job configuration")
+                .append(lineSeparator)
+                .append("FS state path=")
+                .append(statePath)
+                .append(lineSeparator)
+                .append("Checkpoint mode=")
+                .append(cpMode)
+                .append(lineSeparator)
+                .append("Max count of input from source=")
+                .append(maxCount)
+                .append(lineSeparator)
+                .append("Sleep factor=")
+                .append(sleepFactor)
+                .append(lineSeparator)
+                .append("Fail ratio=")
+                .append(failRatio)
+                .append(lineSeparator)
+                .append("Waiting mode=")
+                .append(mode)
+                .append(lineSeparator)
+                .append("Parallelism for async wait operator=")
+                .append(taskNum)
+                .append(lineSeparator)
+                .append("Event type=")
+                .append(timeType)
+                .append(lineSeparator)
+                .append("Shutdown wait timestamp=")
+                .append(shutdownWaitTS);
 
         LOG.info(configStringBuilder.toString());
 
@@ -228,16 +242,14 @@ public class AsyncIOExample {
 
         if (EXACTLY_ONCE_MODE.equals(cpMode)) {
             env.enableCheckpointing(1000L, CheckpointingMode.EXACTLY_ONCE);
-        }
-        else {
+        } else {
             env.enableCheckpointing(1000L, CheckpointingMode.AT_LEAST_ONCE);
         }
 
         // enable watermark or not
         if (EVENT_TIME.equals(timeType)) {
             env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        }
-        else if (INGESTION_TIME.equals(timeType)) {
+        } else if (INGESTION_TIME.equals(timeType)) {
             env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
         }
 
@@ -251,31 +263,32 @@ public class AsyncIOExample {
         // add async operator to streaming job
         DataStream<String> result;
         if (ORDERED.equals(mode)) {
-            result = AsyncDataStream.orderedWait(
-                    inputStream,
-                    function,
-                    timeout,
-                    TimeUnit.MILLISECONDS,
-                    20).setParallelism(taskNum);
-        }
-        else {
-            result = AsyncDataStream.unorderedWait(
-                    inputStream,
-                    function,
-                    timeout,
-                    TimeUnit.MILLISECONDS,
-                    20).setParallelism(taskNum);
+            result =
+                    AsyncDataStream.orderedWait(
+                                    inputStream, function, timeout, TimeUnit.MILLISECONDS, 20)
+                            .setParallelism(taskNum);
+        } else {
+            result =
+                    AsyncDataStream.unorderedWait(
+                                    inputStream, function, timeout, TimeUnit.MILLISECONDS, 20)
+                            .setParallelism(taskNum);
         }
 
         // add a reduce to get the sum of each keys.
-        result.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
-            private static final long serialVersionUID = -938116068682344455L;
+        result.flatMap(
+                        new FlatMapFunction<String, Tuple2<String, Integer>>() {
+                            private static final long serialVersionUID = -938116068682344455L;
 
-            @Override
-            public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
-                out.collect(new Tuple2<>(value, 1));
-            }
-        }).keyBy(0).sum(1).print();
+                            @Override
+                            public void flatMap(
+                                    String value, Collector<Tuple2<String, Integer>> out)
+                                    throws Exception {
+                                out.collect(new Tuple2<>(value, 1));
+                            }
+                        })
+                .keyBy(0)
+                .sum(1)
+                .print();
 
         // execute the program
         env.execute("Async IO Example");
