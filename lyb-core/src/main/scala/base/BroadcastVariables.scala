@@ -5,11 +5,10 @@ import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment, _}
 import org.apache.flink.configuration.Configuration
 
-object BroadcastVariables001 {
-  def main(args: Array[String]): Unit = {
+case class Worker(name: String, salaryPerMonth: Double)
+object BroadcastVariables extends App{
     val env = ExecutionEnvironment.getExecutionEnvironment
     //1.准备工人数据（用于map）
-    case class Worker(name: String, salaryPerMonth: Double)
     val workers: DataSet[Worker] = env.fromElements(Worker("zhangsan", 1356.67), Worker("lisi", 1476.67))
     //2准备统计数据(用于广播，通过withBroadcastSet进行广播)
     case class Count(name: String, month: Int)
@@ -39,5 +38,4 @@ object BroadcastVariables001 {
         Worker("###", 0)
       }
     }).withBroadcastSet(counts, "countWorkInfo").print()
-  }
 }

@@ -10,10 +10,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>lyb-udf</module>
-        <module>lyb-core</module>
-        <module>lyb-other</module>
-        <module>lyb-table</module>
         <module>lyb-e2e-tests</module>
     </modules>
 
@@ -43,6 +39,15 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <flink.version>1.12.7</flink.version>
+            </properties>
+            <modules>
+                <module>lyb-udf</module>
+                <module>lyb-core</module>
+                <module>lyb-other</module>
+                <module>lyb-table</module>
+            </modules>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
@@ -121,6 +126,12 @@
                     </exclusions>
                 </dependency>
 
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-connector-jdbc_${scala.version}</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+
                 <!-- connector format -->
                 <dependency>
                     <groupId>org.apache.flink</groupId>
@@ -139,10 +150,27 @@
             <id>flink-1.17</id>
             <properties>
                 <flink.version>1.17.0</flink.version>
-                <!--                <modules>-->
-                <!--                    <module></module>-->
-                <!--                </modules>-->
             </properties>
+            <modules>
+                <module>lyb-1.17</module>
+            </modules>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-test-utils</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-runtime-web</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                    <version>1.21</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 
@@ -308,6 +336,17 @@
             <id>aliyun</id>
             <name>aliyun Maven</name>
             <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Development Snapshot Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
