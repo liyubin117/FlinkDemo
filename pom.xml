@@ -209,8 +209,14 @@
             <id>flink-1.16</id>
             <properties>
                 <flink.version>1.16.0</flink.version>
+                <jackson.databind.version>2.14.0</jackson.databind.version>
+                <jackson.version>2.14.0</jackson.version>
+                <junit.jupiter.version>5.9.1</junit.jupiter.version>
+                <kafka.version>3.2.2</kafka.version>
+                <log4j.version>2.19.0</log4j.version>
             </properties>
             <modules>
+                <module>lyb-1.16</module>
                 <module>lyb-cep-1.16</module>
             </modules>
             <dependencies>
@@ -223,7 +229,6 @@
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-table-test-utils</artifactId>
                     <version>${flink.version}</version>
-                    <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
@@ -231,9 +236,106 @@
                     <version>${flink.version}</version>
                 </dependency>
                 <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-cep</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-json</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-connector-kafka</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+
+                <dependency>
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-compress</artifactId>
                     <version>1.21</version>
+                </dependency>
+
+                <!-- Adding jackson dependencies. They must be in the default scope (compile). -->
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                    <version>${jackson.databind.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                    <version>${jackson.version}</version>
+                </dependency>
+                <!-- jackson needs jackson-datatype-jsr310 for Java 8 java.time.Instant support -->
+                <dependency>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>jackson-datatype-jsr310</artifactId>
+                    <version>${jackson.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>kafka-clients</artifactId>
+                    <version>${kafka.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>net.datafaker</groupId>
+                    <artifactId>datafaker</artifactId>
+                    <version>1.6.0</version>
+                    <scope>test</scope>
+                </dependency>
+
+                <!-- Add logging framework, to produce console output when running in the IDE. -->
+                <!-- These dependencies are excluded from the application JAR by default. -->
+                <dependency>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <version>${log4j.version}</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                    <version>${log4j.version}</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                    <version>${log4j.version}</version>
+                    <scope>runtime</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>net.mguenther.kafka</groupId>
+                    <artifactId>kafka-junit</artifactId>
+                    <version>${kafka.version}</version>
+                    <scope>test</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>ch.qos.reload4j</groupId>
+                            <artifactId>reload4j</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>org.apache.kafka</groupId>
+                            <artifactId>kafka-log4j-appender</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-engine</artifactId>
+                    <version>${junit.jupiter.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
+                    <version>${junit.jupiter.version}</version>
+                    <scope>test</scope>
                 </dependency>
             </dependencies>
         </profile>
@@ -323,13 +425,13 @@
                             <version>1.7</version>
                             <style>AOSP</style>
                         </googleJavaFormat>
-<!--                        <importOrder>-->
-<!--                            <order>org.apache.flink.shaded,,javax,java,scala,\#</order>-->
-<!--                        </importOrder>-->
+                        <!--                        <importOrder>-->
+                        <!--                            <order>org.apache.flink.shaded,,javax,java,scala,\#</order>-->
+                        <!--                        </importOrder>-->
                         <includes>
                             <include>src/**/*.java</include>
                         </includes>
-                        <removeUnusedImports />
+                        <removeUnusedImports/>
                     </java>
                 </configuration>
             </plugin>
