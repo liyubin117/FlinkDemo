@@ -30,8 +30,8 @@
         <logback.version>1.2.9</logback.version>
         <slf4j.version>1.7.25</slf4j.version>
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
     <profiles>
@@ -206,6 +206,38 @@
             </dependencies>
         </profile>
         <profile>
+            <id>flink-1.16</id>
+            <properties>
+                <flink.version>1.16.0</flink.version>
+            </properties>
+            <modules>
+                <module>lyb-cep-1.16</module>
+            </modules>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-test-utils</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-test-utils</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-runtime-web</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                    <version>1.21</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>flink-1.17</id>
             <properties>
                 <flink.version>1.17.0</flink.version>
@@ -218,6 +250,12 @@
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-test-utils</artifactId>
                     <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-test-utils</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
@@ -255,6 +293,16 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>

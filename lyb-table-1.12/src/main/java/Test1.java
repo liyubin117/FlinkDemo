@@ -37,22 +37,22 @@ public class Test1 {
             System.out.println(row);
         }
         tableEnvironment.executeSql("show create table t2").print();
-//        String str =
-//                "CREATE TABLE `default_catalog`.`default_database`.`orders3` (\n"
-//                        + "  `user` BIGINT NOT NULL comment 'this is the first column',\n"
-//                        + "  `product` VARCHAR(32),\n"
-//                        + "  `amount` INT,\n"
-//                        + "  `ts` TIMESTAMP(3) comment 'notice: 'watermark'',\n"
-//                        + "  `ptime` AS PROCTIME() comment 'notice: computed column',\n"
-//                        + "  WATERMARK FOR `ts` AS `ts` - INTERVAL '1' SECOND,\n"
-//                        + "  CONSTRAINT `PK_3599338` PRIMARY KEY (`user`) NOT ENFORCED"
-//                        + ") WITH (\n"
-//                        + "  'connector' = 'datagen'\n"
-//                        + ");";
-//        System.out.println(str);
-//        tableEnvironment.executeSql(str);
-//        tableEnvironment.executeSql("show columns in orders3 like 'p%'").print();
-//        tableEnvironment.from("orders3").printSchema();
-//        tableEnvironment.executeSql("show create table orders3").print();
+        String str =
+                "CREATE TABLE `default_catalog`.`default_database`.`orders3` (\n"
+                        + "  `user` BIGINT NOT NULL comment 'this is the first column',\n"
+                        + "  `product` VARCHAR(32),\n"
+                        + "  `amount` INT,\n"
+                        + "  `ts` TIMESTAMP(3) comment 'notice: 'watermark'',\n"
+                        + "  `ptime` AS PROCTIME() comment 'notice: computed column',\n"
+                        + "  WATERMARK FOR `ts` AS `ts` - INTERVAL '1' SECOND,\n"
+                        + "  CONSTRAINT `PK_3599338` PRIMARY KEY (`user`) NOT ENFORCED"
+                        + ") WITH (\n"
+                        + "  'connector' = 'datagen'\n"
+                        + ");";
+        System.out.println(str);
+        tableEnvironment.executeSql(str);
+        tableEnvironment.executeSql("show columns in orders3 like 'p%'").print();
+        tableEnvironment.from("orders3").printSchema();
+        tableEnvironment.executeSql("show create table orders3").print();
     }
 }
