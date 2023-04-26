@@ -1,5 +1,8 @@
 package org.lyb.hive;
 
+import static org.apache.flink.util.Preconditions.checkArgument;
+
+import java.util.*;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.table.catalog.hive.client.HiveShim;
 import org.apache.flink.table.catalog.hive.client.HiveShimLoader;
@@ -11,12 +14,7 @@ import org.apache.flink.table.module.hive.udf.generic.HiveGenericUDFGrouping;
 import org.apache.flink.util.StringUtils;
 import org.apache.hadoop.hive.ql.exec.FunctionInfo;
 
-import java.util.*;
-
-import static org.apache.flink.util.Preconditions.checkArgument;
-
 public class HiveModuleV2 implements Module {
-
 
     // a set of functions that shouldn't be overridden by HiveModule
     @VisibleForTesting
@@ -95,14 +93,18 @@ public class HiveModuleV2 implements Module {
         if (name.equalsIgnoreCase("grouping")) {
             return Optional.of(
                     factory.createFunctionDefinitionFromHiveFunction(
-                            name, HiveGenericUDFGrouping.class.getName(), () -> this.getClass().getClassLoader()));
+                            name,
+                            HiveGenericUDFGrouping.class.getName(),
+                            () -> this.getClass().getClassLoader()));
         }
 
         // this function is used to generate legacy GROUPING__ID value for old hive versions
         if (name.equalsIgnoreCase(GenericUDFLegacyGroupingID.NAME)) {
             return Optional.of(
                     factory.createFunctionDefinitionFromHiveFunction(
-                            name, GenericUDFLegacyGroupingID.class.getName(), () -> this.getClass().getClassLoader()));
+                            name,
+                            GenericUDFLegacyGroupingID.class.getName(),
+                            () -> this.getClass().getClassLoader()));
         }
 
         Optional<FunctionInfo> info = hiveShim.getBuiltInFunctionInfo(name);
@@ -111,10 +113,17 @@ public class HiveModuleV2 implements Module {
             return info.map(
                     functionInfo ->
                             factory.createFunctionDefinitionFromHiveFunction(
-                                    name, functionInfo.getFunctionClass().getName(), () -> this.getClass().getClassLoader()));
+                                    name,
+                                    functionInfo.getFunctionClass().getName(),
+                                    () -> this.getClass().getClassLoader()));
         } else {
             return Optional.ofNullable(this.map.get(name))
-                    .map(hiveUDFClassName -> factory.createFunctionDefinitionFromHiveFunction(name, hiveUDFClassName, () -> this.getClass().getClassLoader()));
+                    .map(
+                            hiveUDFClassName ->
+                                    factory.createFunctionDefinitionFromHiveFunction(
+                                            name,
+                                            hiveUDFClassName,
+                                            () -> this.getClass().getClassLoader()));
         }
     }
 

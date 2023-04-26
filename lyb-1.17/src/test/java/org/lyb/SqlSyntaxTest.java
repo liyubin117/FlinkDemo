@@ -1,14 +1,13 @@
 package org.lyb;
 
+import static org.apache.flink.table.api.Expressions.row;
+
+import java.util.concurrent.ExecutionException;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.*;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.ExecutionException;
-
-import static org.apache.flink.table.api.Expressions.row;
 
 public class SqlSyntaxTest {
     private TableEnvironment tableEnv;
@@ -17,8 +16,7 @@ public class SqlSyntaxTest {
 
     @Before
     public void init() {
-        EnvironmentSettings settings =
-                EnvironmentSettings.newInstance().inStreamingMode().build();
+        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
         env = StreamExecutionEnvironment.getExecutionEnvironment();
         this.tableEnv = StreamTableEnvironment.create(env, settings);
         this.source =
@@ -37,6 +35,6 @@ public class SqlSyntaxTest {
         tableEnv.executeSql("insert into t2 select 1 as id").await();
         tableEnv.executeSql("desc t2").print();
         tableEnv.executeSql("show columns from t2").print();
-        tableEnv.executeSql("show create table t2").print(); //1.18支持显示列注释
+        tableEnv.executeSql("show create table t2").print(); // 1.18支持显示列注释
     }
 }

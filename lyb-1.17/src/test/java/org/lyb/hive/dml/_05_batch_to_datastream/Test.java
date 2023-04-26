@@ -1,5 +1,6 @@
 package org.lyb.hive.dml._05_batch_to_datastream;
 
+import java.util.concurrent.TimeUnit;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
@@ -14,16 +15,11 @@ import org.apache.flink.table.catalog.hive.HiveCatalog;
 import org.apache.flink.table.module.CoreModule;
 import org.lyb.hive.HiveModuleV2;
 
-import java.util.concurrent.TimeUnit;
-
-
 /**
- * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
- * http://localhost:9870/
+ * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh http://localhost:9870/
  * http://localhost:8088/cluster
  *
- * hive 启动：$HIVE_HOME/bin/hive --service metastore &
- * hive cli：$HIVE_HOME/bin/hive
+ * <p>hive 启动：$HIVE_HOME/bin/hive --service metastore & hive cli：$HIVE_HOME/bin/hive
  */
 public class Test {
 
@@ -33,8 +29,11 @@ public class Test {
 
         ParameterTool parameterTool = ParameterTool.fromArgs(args);
 
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
-                .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
+        env.setRestartStrategy(
+                RestartStrategies.failureRateRestart(
+                        6,
+                        org.apache.flink.api.common.time.Time.of(10L, TimeUnit.MINUTES),
+                        org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
         env.setParallelism(1);
 
@@ -43,17 +42,16 @@ public class Test {
         env.enableCheckpointing(30 * 1000L, CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
         env.getCheckpointConfig()
-                .enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+                .enableExternalizedCheckpoints(
+                        CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .inBatchMode()
-                .build();
+        EnvironmentSettings settings = EnvironmentSettings.newInstance().inBatchMode().build();
 
         TableEnvironment tEnv = TableEnvironment.create(settings);
 
-        tEnv.getConfig().getConfiguration().setString("pipeline.name", "1.13.5 Interval Outer Join 事件时间案例");
-
+        tEnv.getConfig()
+                .getConfiguration()
+                .setString("pipeline.name", "1.13.5 Interval Outer Join 事件时间案例");
 
         String defaultDatabase = "default";
         String hiveConfDir = "/usr/local/Cellar/hive/3.1.2/libexec/conf";
@@ -74,23 +72,22 @@ public class Test {
         tEnv.loadModule("default", hiveModuleV2);
         tEnv.loadModule("core", CoreModule.INSTANCE);
 
-        String sql3 = ""
-                + "with tmp as ("
-                + ""
-                + "select count(1) as part_pv\n"
-                + "         , max(order_amount) as part_max\n"
-                + "         , min(order_amount) as part_min\n"
-                + "    from hive_table\n"
-                + "    where p_date between '20210920' and '20210920'\n"
-                + ")\n"
-                + "select * from tmp";
+        String sql3 =
+                ""
+                        + "with tmp as ("
+                        + ""
+                        + "select count(1) as part_pv\n"
+                        + "         , max(order_amount) as part_max\n"
+                        + "         , min(order_amount) as part_min\n"
+                        + "    from hive_table\n"
+                        + "    where p_date between '20210920' and '20210920'\n"
+                        + ")\n"
+                        + "select * from tmp";
 
         Table t = tEnv.sqlQuery(sql3);
 
         tEnv.createTemporaryView("test", t);
 
-        tEnv.executeSql("select * from test")
-                .print();
+        tEnv.executeSql("select * from test").print();
     }
-
 }

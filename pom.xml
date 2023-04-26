@@ -11,6 +11,7 @@
 
     <modules>
         <module>lyb-common</module>
+        <module>lyb-calcite</module>
     </modules>
 
     <properties>
@@ -25,6 +26,7 @@
         <kudu.version>1.7.0</kudu.version>
         <hive.version>3.1.2</hive.version>
         <akka.version>2.5.12</akka.version>
+        <calcite.version>1.29.0</calcite.version>
         <lombok.version>1.18.6</lombok.version>
         <spotless.version>2.27.2</spotless.version>
 
@@ -344,21 +346,6 @@
                 <module>lyb-1.17</module>
             </modules>
             <dependencies>
-                <dependency>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-test-utils</artifactId>
-                    <version>${flink.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-table-test-utils</artifactId>
-                    <version>${flink.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-table-planner_${scala.version}</artifactId>
-                    <version>${flink.version}</version>
-                </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-runtime-web</artifactId>

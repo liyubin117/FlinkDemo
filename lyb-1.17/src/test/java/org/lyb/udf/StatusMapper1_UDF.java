@@ -2,7 +2,6 @@ package org.lyb.udf;
 
 import org.apache.flink.table.functions.ScalarFunction;
 
-
 public class StatusMapper1_UDF extends ScalarFunction {
 
     private int i = 0;
@@ -24,5 +23,4 @@ public class StatusMapper1_UDF extends ScalarFunction {
         }
         return "未知";
     }
-
 }

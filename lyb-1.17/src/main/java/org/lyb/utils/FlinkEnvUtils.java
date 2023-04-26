@@ -1,5 +1,8 @@
 package org.lyb.utils;
 
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -21,10 +24,6 @@ import org.apache.flink.table.catalog.hive.HiveCatalog;
 import org.apache.flink.table.module.CoreModule;
 import org.lyb.hive.HiveModuleV2;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
 public class FlinkEnvUtils {
 
     private static final boolean ENABLE_INCREMENTAL_CHECKPOINT = true;
@@ -38,13 +37,14 @@ public class FlinkEnvUtils {
     public static void setRocksDBStateBackend(StreamExecutionEnvironment env) throws IOException {
         setCheckpointConfig(env);
 
-        RocksDBStateBackend rocksDBStateBackend = new RocksDBStateBackend(
-                "file:///Users/flink/checkpoints", ENABLE_INCREMENTAL_CHECKPOINT);
+        RocksDBStateBackend rocksDBStateBackend =
+                new RocksDBStateBackend(
+                        "file:///Users/flink/checkpoints", ENABLE_INCREMENTAL_CHECKPOINT);
         rocksDBStateBackend.setNumberOfTransferThreads(NUMBER_OF_TRANSFER_THREADS);
-        rocksDBStateBackend.setPredefinedOptions(PredefinedOptions.SPINNING_DISK_OPTIMIZED_HIGH_MEM);
+        rocksDBStateBackend.setPredefinedOptions(
+                PredefinedOptions.SPINNING_DISK_OPTIMIZED_HIGH_MEM);
         env.setStateBackend((StateBackend) rocksDBStateBackend);
     }
-
 
     /**
      * 设置状态后端为 FsStateBackend
@@ -56,7 +56,6 @@ public class FlinkEnvUtils {
         FsStateBackend fsStateBackend = new FsStateBackend("file:///Users/flink/checkpoints");
         env.setStateBackend((StateBackend) fsStateBackend);
     }
-
 
     /**
      * 设置状态后端为 MemoryStateBackend
@@ -85,7 +84,9 @@ public class FlinkEnvUtils {
 
         env.configure(configuration, Thread.currentThread().getContextClassLoader());
 
-        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        env.getCheckpointConfig()
+                .enableExternalizedCheckpoints(
+                        CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
     }
 
     public static FlinkEnv getStreamTableEnv(String[] args) throws IOException {
@@ -111,25 +112,24 @@ public class FlinkEnvUtils {
             setMemoryStateBackend(env);
         }
 
-
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
-                .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
+        env.setRestartStrategy(
+                RestartStrategies.failureRateRestart(
+                        6,
+                        org.apache.flink.api.common.time.Time.of(10L, TimeUnit.MINUTES),
+                        org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
 
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, settings);
 
         tEnv.getConfig().addConfiguration(configuration);
 
-        FlinkEnv flinkEnv = FlinkEnv
-                .builder()
-                .streamExecutionEnvironment(env)
-                .streamTableEnvironment(tEnv)
-                .build();
+        FlinkEnv flinkEnv =
+                FlinkEnv.builder()
+                        .streamExecutionEnvironment(env)
+                        .streamTableEnvironment(tEnv)
+                        .build();
 
         initHiveEnv(flinkEnv, parameterTool);
 
@@ -137,12 +137,10 @@ public class FlinkEnvUtils {
     }
 
     /**
-     * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh
-     * http://localhost:9870/
+     * hadoop 启动：/usr/local/Cellar/hadoop/3.2.1/sbin/start-all.sh http://localhost:9870/
      * http://localhost:8088/cluster
      *
-     * hive 启动：$HIVE_HOME/bin/hive --service metastore &
-     * hive cli：$HIVE_HOME/bin/hive
+     * <p>hive 启动：$HIVE_HOME/bin/hive --service metastore & hive cli：$HIVE_HOME/bin/hive
      */
     private static void initHiveEnv(FlinkEnv flinkEnv, ParameterTool parameterTool) {
         String defaultDatabase = "default";
@@ -161,11 +159,9 @@ public class FlinkEnvUtils {
 
             // set the HiveCatalog as the current catalog of the session
 
-            Optional.ofNullable(flinkEnv.streamTEnv())
-                    .ifPresent(s -> s.useCatalog("default"));
+            Optional.ofNullable(flinkEnv.streamTEnv()).ifPresent(s -> s.useCatalog("default"));
 
-            Optional.ofNullable(flinkEnv.batchTEnv())
-                    .ifPresent(s -> s.useCatalog("default"));
+            Optional.ofNullable(flinkEnv.batchTEnv()).ifPresent(s -> s.useCatalog("default"));
         }
 
         boolean enableHiveDialect = parameterTool.getBoolean("enable.hive.dialect", false);
@@ -186,34 +182,36 @@ public class FlinkEnvUtils {
 
             HiveModuleV2 hiveModuleV2 = new HiveModuleV2(version);
 
-            final boolean enableHiveModuleLoadFirst = parameterTool.getBoolean("enable.hive.module.load-first", true);
+            final boolean enableHiveModuleLoadFirst =
+                    parameterTool.getBoolean("enable.hive.module.load-first", true);
 
             Optional.ofNullable(flinkEnv.streamTEnv())
-                    .ifPresent(s -> {
-                        if (enableHiveModuleLoadFirst) {
-                            s.unloadModule("core");
-                            s.loadModule("default", hiveModuleV2);
-                            s.loadModule("core", CoreModule.INSTANCE);
-                        } else {
-                            s.loadModule("default", hiveModuleV2);
-                        }
-                    });
+                    .ifPresent(
+                            s -> {
+                                if (enableHiveModuleLoadFirst) {
+                                    s.unloadModule("core");
+                                    s.loadModule("default", hiveModuleV2);
+                                    s.loadModule("core", CoreModule.INSTANCE);
+                                } else {
+                                    s.loadModule("default", hiveModuleV2);
+                                }
+                            });
 
             Optional.ofNullable(flinkEnv.batchTEnv())
-                    .ifPresent(s -> {
-                        if (enableHiveModuleLoadFirst) {
-                            s.unloadModule("core");
-                            s.loadModule("default", hiveModuleV2);
-                            s.loadModule("core", CoreModule.INSTANCE);
-                        } else {
-                            s.loadModule("default", hiveModuleV2);
-                        }
-                    });
+                    .ifPresent(
+                            s -> {
+                                if (enableHiveModuleLoadFirst) {
+                                    s.unloadModule("core");
+                                    s.loadModule("default", hiveModuleV2);
+                                    s.loadModule("core", CoreModule.INSTANCE);
+                                } else {
+                                    s.loadModule("default", hiveModuleV2);
+                                }
+                            });
 
             flinkEnv.setHiveModuleV2(hiveModuleV2);
         }
     }
-
 
     public static FlinkEnv getBatchTableEnv(String[] args) throws IOException {
 
@@ -222,8 +220,11 @@ public class FlinkEnvUtils {
 
         ParameterTool parameterTool = ParameterTool.fromArgs(args);
 
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(6, org.apache.flink.api.common.time.Time
-                .of(10L, TimeUnit.MINUTES), org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
+        env.setRestartStrategy(
+                RestartStrategies.failureRateRestart(
+                        6,
+                        org.apache.flink.api.common.time.Time.of(10L, TimeUnit.MINUTES),
+                        org.apache.flink.api.common.time.Time.of(5L, TimeUnit.SECONDS)));
         env.getConfig().setGlobalJobParameters(parameterTool);
         env.setParallelism(1);
 
@@ -232,21 +233,15 @@ public class FlinkEnvUtils {
         env.enableCheckpointing(30 * 1000L, CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3L);
         env.getCheckpointConfig()
-                .enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+                .enableExternalizedCheckpoints(
+                        CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .inBatchMode()
-                .build();
+        EnvironmentSettings settings = EnvironmentSettings.newInstance().inBatchMode().build();
 
         TableEnvironment tEnv = TableEnvironment.create(settings);
 
-        FlinkEnv flinkEnv = FlinkEnv
-                .builder()
-                .streamExecutionEnvironment(env)
-                .tableEnvironment(tEnv)
-                .build();
-
+        FlinkEnv flinkEnv =
+                FlinkEnv.builder().streamExecutionEnvironment(env).tableEnvironment(tEnv).build();
 
         initHiveEnv(flinkEnv, parameterTool);
 
@@ -277,5 +272,4 @@ public class FlinkEnvUtils {
             return this.hiveModuleV2;
         }
     }
-
 }

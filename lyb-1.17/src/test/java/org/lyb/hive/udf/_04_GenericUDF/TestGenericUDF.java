@@ -19,8 +19,8 @@ public class TestGenericUDF extends GenericUDF {
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         PrimitiveObjectInspector primitiveObjectInspector = (PrimitiveObjectInspector) arguments[0];
         soi = (StringObjectInspector) primitiveObjectInspector;
-        return PrimitiveObjectInspectorFactory
-                .getPrimitiveWritableObjectInspector(PrimitiveObjectInspector.PrimitiveCategory.STRING);
+        return PrimitiveObjectInspectorFactory.getPrimitiveWritableObjectInspector(
+                PrimitiveObjectInspector.PrimitiveCategory.STRING);
     }
 
     @Override

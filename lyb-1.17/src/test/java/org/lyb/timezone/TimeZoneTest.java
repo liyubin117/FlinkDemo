@@ -1,5 +1,8 @@
 package org.lyb.timezone;
 
+import static org.apache.flink.table.api.Expressions.$;
+
+import java.util.Arrays;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
@@ -10,53 +13,65 @@ import org.lyb.udf.Mod_UDF;
 import org.lyb.udf.StatusMapper_UDF;
 import org.lyb.utils.FlinkEnvUtils;
 
-import java.util.Arrays;
-
-import static org.apache.flink.table.api.Expressions.$;
-
-
 public class TimeZoneTest {
 
     public static void main(String[] args) throws Exception {
 
         FlinkEnvUtils.FlinkEnv flinkEnv = FlinkEnvUtils.getStreamTableEnv(args);
 
-        flinkEnv.streamTEnv().getConfig().getConfiguration().setString("table.local-time-zone", "GMT+08:00");
+        flinkEnv.streamTEnv()
+                .getConfig()
+                .getConfiguration()
+                .setString("table.local-time-zone", "GMT+08:00");
 
         DataStream<Tuple3<String, Long, Long>> tuple3DataStream =
-                flinkEnv.env().fromCollection(Arrays.asList(
-                        Tuple3.of("2", 1L, 1627254000000L), // 北京时间：2021-07-26 07:00:00
-                        Tuple3.of("2", 1L, 1627218000000L + 5000L),
-                        Tuple3.of("2", 101L, 1627218000000L + 6000L),
-                        Tuple3.of("2", 201L, 1627218000000L + 7000L),
-                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
-                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
-                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
-                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
-                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
-                        Tuple3.of("2", 301L, 1627218000000L + 86400000 + 7000L)))
-                .assignTimestampsAndWatermarks(
-                        new BoundedOutOfOrdernessTimestampExtractor<Tuple3<String, Long, Long>>(Time.seconds(0L)) {
-                            @Override
-                            public long extractTimestamp(Tuple3<String, Long, Long> element) {
-                                return element.f2;
-                            }
-                        });
+                flinkEnv.env()
+                        .fromCollection(
+                                Arrays.asList(
+                                        Tuple3.of(
+                                                "2",
+                                                1L,
+                                                1627254000000L), // 北京时间：2021-07-26 07:00:00
+                                        Tuple3.of("2", 1L, 1627218000000L + 5000L),
+                                        Tuple3.of("2", 101L, 1627218000000L + 6000L),
+                                        Tuple3.of("2", 201L, 1627218000000L + 7000L),
+                                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
+                                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
+                                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
+                                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
+                                        Tuple3.of("2", 301L, 1627218000000L + 7000L),
+                                        Tuple3.of("2", 301L, 1627218000000L + 86400000 + 7000L)))
+                        .assignTimestampsAndWatermarks(
+                                new BoundedOutOfOrdernessTimestampExtractor<
+                                        Tuple3<String, Long, Long>>(Time.seconds(0L)) {
+                                    @Override
+                                    public long extractTimestamp(
+                                            Tuple3<String, Long, Long> element) {
+                                        return element.f2;
+                                    }
+                                });
 
         flinkEnv.streamTEnv().registerFunction("mod", new Mod_UDF());
 
         flinkEnv.streamTEnv().registerFunction("status_mapper", new StatusMapper_UDF());
 
-        flinkEnv.streamTEnv().createTemporaryView("source_db.source_table", tuple3DataStream,
-                $("status"), $("id"), $("timestamp"), $("rowtime").rowtime());
+        flinkEnv.streamTEnv()
+                .createTemporaryView(
+                        "source_db.source_table",
+                        tuple3DataStream,
+                        $("status"),
+                        $("id"),
+                        $("timestamp"),
+                        $("rowtime").rowtime());
 
-        String sql = "SELECT\n"
-                + "  count(1),\n"
-                + "  cast(tumble_start(rowtime, INTERVAL '1' DAY) as string)\n"
-                + "FROM\n"
-                + "  source_db.source_table\n"
-                + "GROUP BY\n"
-                + "  tumble(rowtime, INTERVAL '1' DAY)";
+        String sql =
+                "SELECT\n"
+                        + "  count(1),\n"
+                        + "  cast(tumble_start(rowtime, INTERVAL '1' DAY) as string)\n"
+                        + "FROM\n"
+                        + "  source_db.source_table\n"
+                        + "GROUP BY\n"
+                        + "  tumble(rowtime, INTERVAL '1' DAY)";
 
         Table result = flinkEnv.streamTEnv().sqlQuery(sql);
 

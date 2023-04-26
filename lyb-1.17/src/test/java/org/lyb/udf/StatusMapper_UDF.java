@@ -2,7 +2,6 @@ package org.lyb.udf;
 
 import org.apache.flink.table.functions.TableFunction;
 
-
 public class StatusMapper_UDF extends TableFunction<String> {
 
     private int i = 0;
@@ -26,5 +25,4 @@ public class StatusMapper_UDF extends TableFunction<String> {
         }
         i++;
     }
-
 }

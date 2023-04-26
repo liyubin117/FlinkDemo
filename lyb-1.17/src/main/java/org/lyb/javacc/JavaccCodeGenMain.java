@@ -1,11 +1,9 @@
 package org.lyb.javacc;
 
-
-
 public class JavaccCodeGenMain {
 
     public static void main(String[] args) throws Exception {
-       javacc();
+        javacc();
     }
 
     private static void version() throws Exception {
@@ -18,5 +16,4 @@ public class JavaccCodeGenMain {
 
         org.javacc.parser.Main.main(new String[] {path});
     }
-
 }

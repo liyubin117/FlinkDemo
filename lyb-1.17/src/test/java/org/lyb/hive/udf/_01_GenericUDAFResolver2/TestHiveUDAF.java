@@ -18,12 +18,11 @@ public class TestHiveUDAF implements GenericUDAFResolver2 {
         return new InneGenericUDAFEvaluatorr();
     }
 
-
-    public GenericUDAFEvaluator getEvaluator(GenericUDAFParameterInfo paramInfo) throws SemanticException {
+    public GenericUDAFEvaluator getEvaluator(GenericUDAFParameterInfo paramInfo)
+            throws SemanticException {
 
         return new InneGenericUDAFEvaluatorr();
     }
-
 
     public static class InneGenericUDAFEvaluatorr extends GenericUDAFEvaluator {
         private PrimitiveObjectInspector inputOI;
@@ -79,7 +78,5 @@ public class TestHiveUDAF implements GenericUDAFResolver2 {
 
             return new Text(((StringAgg) agg).all);
         }
-
-
     }
 }
