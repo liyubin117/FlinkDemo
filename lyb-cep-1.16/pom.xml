@@ -11,4 +11,12 @@
 
     <name>lyb-cep-1.16 - Pattern Matching with CEP</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-cep</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
