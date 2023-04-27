@@ -45,7 +45,7 @@ options {
   BUILD_TOKEN_MANAGER = true;
   SANITY_CHECK = true;
   FORCE_LA_CHECK = false;
-  OUTPUT_DIRECTORY = "lyb-1.17/src/main/java/codegen/javacc";
+  OUTPUT_DIRECTORY = "lyb-calcite/src/main/java/codegen/javacc";
 }
 
 PARSER_BEGIN(Simple1)

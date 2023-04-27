@@ -1,6 +1,6 @@
 package org.lyb.javacc;
 
-public class JavaccCodeGenMain {
+public class Simple1CodeGenMain {
 
     public static void main(String[] args) throws Exception {
         javacc();
@@ -12,7 +12,7 @@ public class JavaccCodeGenMain {
 
     private static void javacc() throws Exception {
 
-        String path = JavaccCodeGenMain.class.getClassLoader().getResource("Simple1.jj").getPath();
+        String path = Simple1CodeGenMain.class.getClassLoader().getResource("Simple1.jj").getPath();
 
         org.javacc.parser.Main.main(new String[] {path});
     }
