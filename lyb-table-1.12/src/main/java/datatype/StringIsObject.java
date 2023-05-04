@@ -1,12 +1,9 @@
 package datatype;
 
 /**
- * 项目名称: Apache Flink 知其然，知其所以然 - datatype
- * 功能描述:
- * 操作步骤:
- * <p>
- * 作者： 孙金城
- * 日期： 2020/10/11
+ * 项目名称: Apache Flink 知其然，知其所以然 - datatype 功能描述: 操作步骤:
+ *
+ * <p>作者： 孙金城 日期： 2020/10/11
  */
 public class StringIsObject {
     public static void main(String[] args) {

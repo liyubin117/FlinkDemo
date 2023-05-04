@@ -1,6 +1,8 @@
 package org.lyb.utils;
 
-import org.junit.Assert;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -16,10 +18,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.Assert;
 
 /** This class contains reusable utility methods for unit tests. */
 public class CommonTestUtils {

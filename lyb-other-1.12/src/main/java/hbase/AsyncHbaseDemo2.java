@@ -1,23 +1,23 @@
-package hbase;//package hadoop;
-//import java.util.List;
-//import java.util.ArrayList;
+package hbase; // package hadoop;
+// import java.util.List;
+// import java.util.ArrayList;
 //
-//import org.hbase.async.HBaseClient;
-//import org.hbase.async.PutRequest;
-//import org.hbase.async.GetRequest;
-//import org.hbase.async.DeleteRequest;
-//import org.hbase.async.KeyValue;
-//import org.hbase.async.Scanner;
-//import org.hbase.async.Bytes;
+// import org.hbase.async.HBaseClient;
+// import org.hbase.async.PutRequest;
+// import org.hbase.async.GetRequest;
+// import org.hbase.async.DeleteRequest;
+// import org.hbase.async.KeyValue;
+// import org.hbase.async.Scanner;
+// import org.hbase.async.Bytes;
 //
-//import com.stumbleupon.async.Callback;
+// import com.stumbleupon.async.Callback;
 //
 ////
 //// create 'hbase_async_test', {NAME => 'fam1'}, {NAME => 'fam2'}
 ////
 //
-//public class AsyncHbaseDemo2
-//{
+// public class AsyncHbaseDemo2
+// {
 //    final static String TABLE = "hbase_async_test";
 //    static int scan_rows = 5;
 //
@@ -96,7 +96,8 @@ package hbase;//package hadoop;
 //        System.out.printf("put %,d values\n", n);
 //
 //        if (true) {
-//            // REMIND: this should not be needed, but we need it because of a race condition in shutdown
+//            // REMIND: this should not be needed, but we need it because of a race condition in
+// shutdown
 //            Thread.sleep(5000);
 //            client.flush().join();
 //        }
@@ -144,14 +145,16 @@ package hbase;//package hadoop;
 //        byte[] table = Bytes.UTF8(TABLE);
 //        byte[] key = Bytes.UTF8(argv[2]);
 //        byte[] family = argv.length <= 3 ? null : Bytes.UTF8(argv[3]);
-//        byte[][] qualifier = family == null ? null : argv.length <= 4 ? null: new byte[][] {Bytes.UTF8(argv[4])};
+//        byte[][] qualifier = family == null ? null : argv.length <= 4 ? null: new byte[][]
+// {Bytes.UTF8(argv[4])};
 //
 //        client.delete(new DeleteRequest(table, key, family, qualifier)).join();
 //
 //        return 0;
 //    }
 //
-//    public static int scan(HBaseClient client, String[] argv, SimpleFilter filter) throws Exception
+//    public static int scan(HBaseClient client, String[] argv, SimpleFilter filter) throws
+// Exception
 //    {
 //        int count = 0;
 //        Scanner scanner = client.newScanner(TABLE, filter);
@@ -177,6 +180,8 @@ package hbase;//package hadoop;
 //
 //    static void print(boolean fromFilter, int count, KeyValue val)
 //    {
-//        System.out.printf("%4d: %s%s, %s, %s, %s, %s\n", count, fromFilter ? "[filter] " : "", TABLE, new String(val.key()), new String(val.family()), new String(val.qualifier()), new String(val.value()));
+//        System.out.printf("%4d: %s%s, %s, %s, %s, %s\n", count, fromFilter ? "[filter] " : "",
+// TABLE, new String(val.key()), new String(val.family()), new String(val.qualifier()), new
+// String(val.value()));
 //    }
-//}
+// }

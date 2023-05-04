@@ -1,22 +1,17 @@
 package flume;
 
 import com.google.common.base.Charsets;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * 自定义插件用于指定host和app
- * a1.sources.r1.interceptors = i1
- * a1.sources.r1.interceptors.i1.type = me.jinkun.flume.MyIntercepter$Builder
- * a1.sources.r1.interceptors.i1.host=server1
- * a1.sources.r1.interceptors.i1.app=nginx
- * a1.sources.r1.interceptors.i1.fileName=access.log
+ * 自定义插件用于指定host和app a1.sources.r1.interceptors = i1 a1.sources.r1.interceptors.i1.type =
+ * me.jinkun.flume.MyIntercepter$Builder a1.sources.r1.interceptors.i1.host=server1
+ * a1.sources.r1.interceptors.i1.app=nginx a1.sources.r1.interceptors.i1.fileName=access.log
  * a1.sources.r1.interceptors.i1.delimiter=|
- *
  */
 public class MyInterceptor implements Interceptor {
     private String host;
@@ -71,9 +66,7 @@ public class MyInterceptor implements Interceptor {
         System.out.println("我的拦截器已经关闭");
     }
 
-    /**
-     *
-     */
+    /** */
     public static class Constants {
         public static final String HOST = "host";
         public static final String HOST_DEFAULT = "UNKNOW";
@@ -85,9 +78,7 @@ public class MyInterceptor implements Interceptor {
         public static final String DELIMITER_DEFAULT = "|";
     }
 
-    /**
-     * 获取配置文件
-     */
+    /** 获取配置文件 */
     public static class Builder implements Interceptor.Builder {
 
         private String host;

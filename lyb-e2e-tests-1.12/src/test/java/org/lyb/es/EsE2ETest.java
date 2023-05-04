@@ -21,7 +21,5 @@ public class EsE2ETest {
     }
 
     @Test
-    public void test1() {
-
-    }
+    public void test1() {}
 }

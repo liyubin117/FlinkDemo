@@ -1,5 +1,11 @@
 package org.lyb.oracle;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,13 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.utility.MountableFile;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class OracleE2eTest {
     public static final String IMAGE = "gvenzl/oracle-xe:21-slim-faststart";
@@ -25,10 +24,13 @@ public class OracleE2eTest {
 
     @Before
     public void init() {
-        OracleContainer oracle = new OracleContainer(IMAGE)
-                .withUsername("LYB")
-                .withPassword("LYB")
-                .withCopyFileToContainer(MountableFile.forClasspathResource("oracle/init.sql"), "/container-entrypoint-startdb.d/init.sql");
+        OracleContainer oracle =
+                new OracleContainer(IMAGE)
+                        .withUsername("LYB")
+                        .withPassword("LYB")
+                        .withCopyFileToContainer(
+                                MountableFile.forClasspathResource("oracle/init.sql"),
+                                "/container-entrypoint-startdb.d/init.sql");
         oracle.start();
         jdbcUrl = oracle.getJdbcUrl();
         user = oracle.getUsername();
@@ -44,10 +46,7 @@ public class OracleE2eTest {
     @Test
     public void test1() throws ClassNotFoundException, SQLException {
         Class.forName("oracle.jdbc.driver.OracleDriver");
-        Connection conn = DriverManager.getConnection(
-                jdbcUrl,
-                user,
-                passwd);
+        Connection conn = DriverManager.getConnection(jdbcUrl, user, passwd);
         Statement stat = conn.createStatement();
         stat.execute("create user user1 identified by user1");
         stat.execute("GRANT UNLIMITED TABLESPACE TO user1");

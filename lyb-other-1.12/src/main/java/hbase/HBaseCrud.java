@@ -1,5 +1,8 @@
 package hbase;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.NavigableMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -13,14 +16,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.NavigableMap;
-
-/**
- * http://hbase.apache.org/1.2/apidocs/index.html
- *
- */
+/** http://hbase.apache.org/1.2/apidocs/index.html */
 public class HBaseCrud {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private Connection connection;
@@ -28,7 +24,7 @@ public class HBaseCrud {
 
     public static class HBaseConnectionUtils {
 
-        public static Connection getConnection(){
+        public static Connection getConnection() {
             Connection connection = null;
             try {
                 connection = ConnectionFactory.createConnection(getConfiguration());
@@ -47,7 +43,7 @@ public class HBaseCrud {
     }
 
     @Before
-    public void init(){
+    public void init() {
         connection = HBaseConnectionUtils.getConnection();
         tableName = TableName.valueOf("tableByJava");
     }
@@ -62,14 +58,14 @@ public class HBaseCrud {
     }
 
     @Test
-    public void testCreate(){
-        //创建HBase表
+    public void testCreate() {
+        // 创建HBase表
         createTable(connection, tableName, "f1", "f2");
     }
 
     @Test
-    public void testPut(){
-        //put
+    public void testPut() {
+        // put
         String rowKey = "u12000";
         put(connection, tableName, rowKey, "f1", "name", "ricky");
         put(connection, tableName, rowKey, "f1", "password", "root");
@@ -77,24 +73,23 @@ public class HBaseCrud {
     }
 
     @Test
-    public void testGet(){
-        //get
+    public void testGet() {
+        // get
         String rowKey = "u12000";
         get(connection, tableName, rowKey);
     }
 
     @Test
-    public void testScan(){
-        //scan
+    public void testScan() {
+        // scan
         scan(connection, tableName);
     }
 
     @Test
-    public void testDelete(){
-        //delete
+    public void testDelete() {
+        // delete
         deleteTable(connection, tableName);
     }
-
 
     public void scan(Connection connection, TableName tableName) {
         Table table = null;
@@ -102,32 +97,37 @@ public class HBaseCrud {
             table = connection.getTable(tableName);
             ResultScanner rs = null;
             try {
-                //Scan scan = new Scan(Bytes.toBytes("u120000"), Bytes.toBytes("u200000"));
+                // Scan scan = new Scan(Bytes.toBytes("u120000"), Bytes.toBytes("u200000"));
                 rs = table.getScanner(new Scan());
-                for(Result r:rs){
-                    NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> navigableMap = r.getMap();
-                    for(Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : navigableMap.entrySet()){
-                        logger.info("row:{} key:{}", Bytes.toString(r.getRow()), Bytes.toString(entry.getKey()));
-                        NavigableMap<byte[], NavigableMap<Long, byte[]>> map =entry.getValue();
-                        for(Map.Entry<byte[], NavigableMap<Long, byte[]>> en:map.entrySet()){
-                            System.out.print(Bytes.toString(en.getKey())+"##");
+                for (Result r : rs) {
+                    NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>>
+                            navigableMap = r.getMap();
+                    for (Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry :
+                            navigableMap.entrySet()) {
+                        logger.info(
+                                "row:{} key:{}",
+                                Bytes.toString(r.getRow()),
+                                Bytes.toString(entry.getKey()));
+                        NavigableMap<byte[], NavigableMap<Long, byte[]>> map = entry.getValue();
+                        for (Map.Entry<byte[], NavigableMap<Long, byte[]>> en : map.entrySet()) {
+                            System.out.print(Bytes.toString(en.getKey()) + "##");
                             NavigableMap<Long, byte[]> ma = en.getValue();
-                            for(Map.Entry<Long, byte[]>e: ma.entrySet()){
-                                System.out.print(e.getKey()+"###");
+                            for (Map.Entry<Long, byte[]> e : ma.entrySet()) {
+                                System.out.print(e.getKey() + "###");
                                 System.out.println(Bytes.toString(e.getValue()));
                             }
                         }
                     }
                 }
             } finally {
-                if(rs!=null) {
+                if (rs != null) {
                     rs.close();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(table!=null) {
+            if (table != null) {
                 try {
                     table.close();
                 } catch (IOException e) {
@@ -137,22 +137,24 @@ public class HBaseCrud {
         }
     }
 
-    //根据row key获取表中的该行数据
-    public void get(Connection connection,TableName tableName,String rowKey) {
+    // 根据row key获取表中的该行数据
+    public void get(Connection connection, TableName tableName, String rowKey) {
         Table table = null;
         try {
             table = connection.getTable(tableName);
             Get get = new Get(Bytes.toBytes(rowKey));
             Result result = table.get(get);
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> navigableMap = result.getMap();
-            for(Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry : navigableMap.entrySet()){
+            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> navigableMap =
+                    result.getMap();
+            for (Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> entry :
+                    navigableMap.entrySet()) {
 
                 logger.info("columnFamily:{}", Bytes.toString(entry.getKey()));
-                NavigableMap<byte[], NavigableMap<Long, byte[]>> map =entry.getValue();
-                for(Map.Entry<byte[], NavigableMap<Long, byte[]>> en:map.entrySet()){
-                    System.out.print(Bytes.toString(en.getKey())+"##");
+                NavigableMap<byte[], NavigableMap<Long, byte[]>> map = entry.getValue();
+                for (Map.Entry<byte[], NavigableMap<Long, byte[]>> en : map.entrySet()) {
+                    System.out.print(Bytes.toString(en.getKey()) + "##");
                     NavigableMap<Long, byte[]> nm = en.getValue();
-                    for(Map.Entry<Long, byte[]> me : nm.entrySet()){
+                    for (Map.Entry<Long, byte[]> me : nm.entrySet()) {
                         logger.info("column key:{}, value:{}", me.getKey(), me.getValue());
                     }
                 }
@@ -160,7 +162,7 @@ public class HBaseCrud {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(table!=null) {
+            if (table != null) {
                 try {
                     table.close();
                 } catch (IOException e) {
@@ -170,9 +172,14 @@ public class HBaseCrud {
         }
     }
 
-    /**批量插入可以使用 Table.put(List<Put> list)**/
-    public void put(Connection connection, TableName tableName,
-                    String rowKey, String columnFamily, String column, String data) {
+    /** 批量插入可以使用 Table.put(List<Put> list)* */
+    public void put(
+            Connection connection,
+            TableName tableName,
+            String rowKey,
+            String columnFamily,
+            String column,
+            String data) {
 
         Table table = null;
         try {
@@ -183,7 +190,7 @@ public class HBaseCrud {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(table!=null) {
+            if (table != null) {
                 try {
                     table.close();
                 } catch (IOException e) {
@@ -197,11 +204,11 @@ public class HBaseCrud {
         Admin admin = null;
         try {
             admin = connection.getAdmin();
-            if(admin.tableExists(tableName)){
+            if (admin.tableExists(tableName)) {
                 logger.warn("table:{} exists!", tableName.getName());
-            }else{
+            } else {
                 HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
-                for(String columnFamily : columnFamilies) {
+                for (String columnFamily : columnFamilies) {
                     tableDescriptor.addFamily(new HColumnDescriptor(columnFamily));
                 }
                 admin.createTable(tableDescriptor);
@@ -210,7 +217,7 @@ public class HBaseCrud {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(admin!=null) {
+            if (admin != null) {
                 try {
                     admin.close();
                 } catch (IOException e) {
@@ -220,20 +227,20 @@ public class HBaseCrud {
         }
     }
 
-    //删除表中的数据
+    // 删除表中的数据
     public void deleteTable(Connection connection, TableName tableName) {
         Admin admin = null;
         try {
             admin = connection.getAdmin();
             if (admin.tableExists(tableName)) {
-                //必须先disable, 再delete
+                // 必须先disable, 再delete
                 admin.disableTable(tableName);
                 admin.deleteTable(tableName);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(admin!=null) {
+            if (admin != null) {
                 try {
                     admin.close();
                 } catch (IOException e) {
@@ -247,11 +254,11 @@ public class HBaseCrud {
         Admin admin = null;
         try {
             admin = connection.getAdmin();
-            if(admin.tableExists(tableName)){
+            if (admin.tableExists(tableName)) {
                 admin.disableTable(tableName);
             }
         } finally {
-            if(admin!=null) {
+            if (admin != null) {
                 admin.close();
             }
         }

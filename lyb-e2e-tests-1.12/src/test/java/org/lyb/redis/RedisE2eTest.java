@@ -1,5 +1,7 @@
 package org.lyb.redis;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -7,10 +9,9 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import redis.clients.jedis.Jedis;
 
-import static org.junit.Assert.assertEquals;
-
 public class RedisE2eTest {
-    private static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:3.0.6")).withExposedPorts(6379);
+    private static GenericContainer<?> redis =
+            new GenericContainer<>(DockerImageName.parse("redis:3.0.6")).withExposedPorts(6379);
 
     @BeforeClass
     public static void startContainer() {

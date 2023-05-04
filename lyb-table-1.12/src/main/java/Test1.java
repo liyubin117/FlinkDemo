@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
+import java.util.concurrent.ExecutionException;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.CloseableIterator;
-
-import java.util.concurrent.ExecutionException;
 
 public class Test1 {
     public static void main(String[] args) throws ExecutionException, InterruptedException {

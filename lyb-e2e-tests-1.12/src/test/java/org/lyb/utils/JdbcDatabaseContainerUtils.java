@@ -1,19 +1,16 @@
 package org.lyb.utils;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 public class JdbcDatabaseContainerUtils {
 
-    public static ResultSet performQuery(JdbcDatabaseContainer<?> container, String sql) throws SQLException {
+    public static ResultSet performQuery(JdbcDatabaseContainer<?> container, String sql)
+            throws SQLException {
         DataSource ds = getDataSource(container);
         Statement statement = ds.getConnection().createStatement();
         statement.execute(sql);

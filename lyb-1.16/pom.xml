@@ -10,4 +10,25 @@
     <artifactId>lyb-1.16</artifactId>
 
     <name>lyb-1.16</name>
+
+    <dependencies>
+        <!-- Adding jackson dependencies. They must be in the default scope (compile). -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <!-- jackson needs jackson-datatype-jsr310 for Java 8 java.time.Instant support -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+    </dependencies>
 </project>

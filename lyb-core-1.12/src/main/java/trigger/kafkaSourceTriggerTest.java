@@ -1,5 +1,6 @@
 package trigger;
 
+import java.util.Properties;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.configuration.Configuration;
@@ -9,8 +10,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 
-import java.util.Properties;
-
 /*
 trigger 测试
 滚动窗口，20s
@@ -19,7 +18,7 @@ trigger 测试
 public class kafkaSourceTriggerTest {
 
     public static void main(String[] args) throws Exception {
-// set up the streaming execution environment
+        // set up the streaming execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
@@ -27,18 +26,16 @@ public class kafkaSourceTriggerTest {
         properties.setProperty("bootstrap.servers", "localhost:9093");
         properties.setProperty("group.id", "test");
 
-        FlinkKafkaConsumer<String> kafkaConsumer010 = new FlinkKafkaConsumer<>("test",
-                new SimpleStringSchema(),
-                properties);
+        FlinkKafkaConsumer<String> kafkaConsumer010 =
+                new FlinkKafkaConsumer<>("test", new SimpleStringSchema(), properties);
 
-        AllWindowedStream<Integer, TimeWindow> stream = env
-                .addSource(kafkaConsumer010)
-                .map(new String2Integer())
-                .timeWindowAll(org.apache.flink.streaming.api.windowing.time.Time.seconds(20))
-                .trigger(CustomProcessingTimeTrigger.create());
-        stream.sum(0)
-                .print()
-        ;
+        AllWindowedStream<Integer, TimeWindow> stream =
+                env.addSource(kafkaConsumer010)
+                        .map(new String2Integer())
+                        .timeWindowAll(
+                                org.apache.flink.streaming.api.windowing.time.Time.seconds(20))
+                        .trigger(CustomProcessingTimeTrigger.create());
+        stream.sum(0).print();
 
         env.execute("Flink Streaming Java API Skeleton");
     }
@@ -53,8 +50,6 @@ public class kafkaSourceTriggerTest {
         }
 
         @Override
-        public void open(Configuration parameters) throws Exception {
-        }
+        public void open(Configuration parameters) throws Exception {}
     }
-
 }

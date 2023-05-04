@@ -17,37 +17,40 @@ public class JavaSocketWindowWordCount {
         final int port;
         try {
             final ParameterTool params = ParameterTool.fromArgs(args);
-            port = params.getInt("port",9888);
+            port = params.getInt("port", 9888);
         } catch (Exception e) {
-            System.err.println("No port specified. Please run 'SocketWindowWordCount --port <port>'");
+            System.err.println(
+                    "No port specified. Please run 'SocketWindowWordCount --port <port>'");
             return;
         }
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-
         DataStream<String> text = env.socketTextStream("spark", port, "\n");
 
-        DataStream<WordWithCount> windowCounts = text
-                .map(new RichMapFunction<String, String>() {
-                    private transient Counter counter;
-                    @Override
-                    public void open(Configuration config) {
-                        this.counter = getRuntimeContext()
-                                .getMetricGroup()
-                                .counter("myCounter");
-                    }
-                    @Override
-                    public String map(String str) throws Exception {
-                        counter.inc();
-                        return str;
-                    }
+        DataStream<WordWithCount> windowCounts =
+                text.map(
+                                new RichMapFunction<String, String>() {
+                                    private transient Counter counter;
 
-                })
-                .flatMap(new MyFlatMapFunction())
-                .keyBy("word")
-                //.timeWindow(Time.seconds(5), Time.seconds(1))  //若去掉window，则自动计算累积值
-                .reduce(new MyReduceFunction());
+                                    @Override
+                                    public void open(Configuration config) {
+                                        this.counter =
+                                                getRuntimeContext()
+                                                        .getMetricGroup()
+                                                        .counter("myCounter");
+                                    }
+
+                                    @Override
+                                    public String map(String str) throws Exception {
+                                        counter.inc();
+                                        return str;
+                                    }
+                                })
+                        .flatMap(new MyFlatMapFunction())
+                        .keyBy("word")
+                        // .timeWindow(Time.seconds(5), Time.seconds(1))  //若去掉window，则自动计算累积值
+                        .reduce(new MyReduceFunction());
 
         windowCounts.print();
         env.execute("Socket Window WordCount");
@@ -60,21 +63,22 @@ public class JavaSocketWindowWordCount {
         public void open(Configuration config) {
             getRuntimeContext()
                     .getMetricGroup()
-                    .gauge("MyGauge", new Gauge<Integer>() {
-                        @Override
-                        public Integer getValue() {
-                            return valueToExpose;
-                        }
-                    });
+                    .gauge(
+                            "MyGauge",
+                            new Gauge<Integer>() {
+                                @Override
+                                public Integer getValue() {
+                                    return valueToExpose;
+                                }
+                            });
         }
 
         public void flatMap(String in, Collector<WordWithCount> out) {
-            valueToExpose ++;
-            for (String word: in.split("\\s")) {
+            valueToExpose++;
+            for (String word : in.split("\\s")) {
                 out.collect(new WordWithCount(word, 1L));
             }
         }
-
     }
 
     public static class MyReduceFunction extends RichReduceFunction<WordWithCount> {
@@ -82,9 +86,7 @@ public class JavaSocketWindowWordCount {
 
         @Override
         public void open(Configuration config) {
-            this.counter = getRuntimeContext()
-                    .getMetricGroup()
-                    .counter("myCounter");
+            this.counter = getRuntimeContext().getMetricGroup().counter("myCounter");
         }
 
         public WordWithCount reduce(WordWithCount a, WordWithCount b) {
@@ -109,6 +111,4 @@ public class JavaSocketWindowWordCount {
             return word + " : " + count;
         }
     }
-
-
 }

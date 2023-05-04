@@ -45,12 +45,12 @@ options {
   BUILD_TOKEN_MANAGER = true;
   SANITY_CHECK = true;
   FORCE_LA_CHECK = false;
-  OUTPUT_DIRECTORY = "lyb-calcite/src/main/java/codegen/javacc";
+  OUTPUT_DIRECTORY = "lyb-calcite/src/main/java/codegen/javacc/simple1";
 }
 
 PARSER_BEGIN(Simple1)
 
-package codegen.javacc;
+package codegen.javacc.simple1;
 
 /** Simple brace matcher. */
 public class Simple1 {

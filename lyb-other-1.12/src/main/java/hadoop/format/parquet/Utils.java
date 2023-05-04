@@ -1,6 +1,18 @@
 package hadoop.format.parquet;
 
+import static hadoop.format.parquet.MessageTypeGenerationType.CODE;
+
 import com.google.common.collect.Maps;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.JulianFields;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.ParquetReadOptions;
@@ -21,60 +33,59 @@ import org.apache.parquet.schema.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.temporal.JulianFields;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static hadoop.format.parquet.MessageTypeGenerationType.CODE;
-
-/**
- * @author Yubin Li
- */
+/** @author Yubin Li */
 public class Utils {
     public static final String DELIMITER = "------";
     public static Logger LOG = LoggerFactory.getLogger(Utils.class);
 
-    public static MessageType getMessageType(MessageTypeGenerationType type, String inPath) throws IOException {
+    public static MessageType getMessageType(MessageTypeGenerationType type, String inPath)
+            throws IOException {
         MessageType result;
         switch (type) {
             case CODE:
-                result = Types.buildMessage()
-                        .required(PrimitiveType.PrimitiveTypeName.BINARY).as(OriginalType.UTF8).named("bookName")
-                        .required(PrimitiveType.PrimitiveTypeName.BOOLEAN).named("market")
-                        .required(PrimitiveType.PrimitiveTypeName.DOUBLE).named("price")
-                        .requiredGroup()
-                        .required(PrimitiveType.PrimitiveTypeName.BINARY).as(OriginalType.UTF8).named("name")
-                        .required(PrimitiveType.PrimitiveTypeName.INT32).named("age")
-                        .required(PrimitiveType.PrimitiveTypeName.INT96).named("cash")
-                        .named("author")
-                        .named("Book");
+                result =
+                        Types.buildMessage()
+                                .required(PrimitiveType.PrimitiveTypeName.BINARY)
+                                .as(OriginalType.UTF8)
+                                .named("bookName")
+                                .required(PrimitiveType.PrimitiveTypeName.BOOLEAN)
+                                .named("market")
+                                .required(PrimitiveType.PrimitiveTypeName.DOUBLE)
+                                .named("price")
+                                .requiredGroup()
+                                .required(PrimitiveType.PrimitiveTypeName.BINARY)
+                                .as(OriginalType.UTF8)
+                                .named("name")
+                                .required(PrimitiveType.PrimitiveTypeName.INT32)
+                                .named("age")
+                                .required(PrimitiveType.PrimitiveTypeName.INT96)
+                                .named("cash")
+                                .named("author")
+                                .named("Book");
                 break;
             case STRING:
-                String schemaString = "message Book {\n" +
-                        "  required binary bookName (UTF8);\n" +
-                        "  required boolean market;\n" +
-                        "  required double price;\n" +
-                        "  repeated group author {\n" +
-                        "    required binary name (UTF8);\n" +
-                        "    required int32 age;\n" +
-                        "    required int96 cash;\n" +
-                        "  }\n" +
-                        "}";
+                String schemaString =
+                        "message Book {\n"
+                                + "  required binary bookName (UTF8);\n"
+                                + "  required boolean market;\n"
+                                + "  required double price;\n"
+                                + "  repeated group author {\n"
+                                + "    required binary name (UTF8);\n"
+                                + "    required int32 age;\n"
+                                + "    required int96 cash;\n"
+                                + "  }\n"
+                                + "}";
                 result = MessageTypeParser.parseMessageType(schemaString);
                 break;
             case FILE:
-                HadoopInputFile hadoopInputFile = HadoopInputFile.fromPath(new Path(inPath), new Configuration());
-                ParquetFileReader parquetFileReader = ParquetFileReader.open(hadoopInputFile, ParquetReadOptions.builder().build());
+                HadoopInputFile hadoopInputFile =
+                        HadoopInputFile.fromPath(new Path(inPath), new Configuration());
+                ParquetFileReader parquetFileReader =
+                        ParquetFileReader.open(
+                                hadoopInputFile, ParquetReadOptions.builder().build());
                 ParquetMetadata metaData = parquetFileReader.getFooter();
                 result = metaData.getFileMetaData().getSchema();
-                //记得关闭
+                // 记得关闭
                 parquetFileReader.close();
                 break;
             default:
@@ -90,17 +101,21 @@ public class Utils {
         Group line;
         while ((line = parquetReader.read()) != null) {
             Group time = line.getGroup("author", 0);
-            //通过下标和字段名称都可以获取
+            // 通过下标和字段名称都可以获取
             /*System.out.println(line.getString(0, 0)+"\t"+
-            　　　　　　　　line.getString(1, 0)+"\t"+
-            　　　　　　　　time.getInteger(0, 0)+"\t"+
-            　　　　　　　　time.getString(1, 0)+"\t");*/
+            line.getString(1, 0)+"\t"+
+            time.getInteger(0, 0)+"\t"+
+            time.getString(1, 0)+"\t");*/
 
-            System.out.println(line.getString("bookName", 0) + "\t" +
-                    line.getDouble("price", 0) + "\t" +
-                    time.getInteger("age", 0) + "\t" +
-                    time.getString("name", 0) + "\t");
-
+            System.out.println(
+                    line.getString("bookName", 0)
+                            + "\t"
+                            + line.getDouble("price", 0)
+                            + "\t"
+                            + time.getInteger("age", 0)
+                            + "\t"
+                            + time.getString("name", 0)
+                            + "\t");
         }
         System.out.println("读取结束");
     }
@@ -123,8 +138,10 @@ public class Utils {
 
     public static void parquetMetadataRead(String inPath) throws IOException {
         System.out.println("read footer, get metadata");
-        HadoopInputFile hadoopInputFile = HadoopInputFile.fromPath(new Path(inPath), new Configuration());
-        ParquetFileReader parquetFileReader = ParquetFileReader.open(hadoopInputFile, ParquetReadOptions.builder().build());
+        HadoopInputFile hadoopInputFile =
+                HadoopInputFile.fromPath(new Path(inPath), new Configuration());
+        ParquetFileReader parquetFileReader =
+                ParquetFileReader.open(hadoopInputFile, ParquetReadOptions.builder().build());
         ParquetMetadata pm = parquetFileReader.getFooter();
 
         System.out.println("----block level metadata----");
@@ -132,13 +149,22 @@ public class Utils {
         Map<ColumnPath, Statistics> sumStats = Maps.newHashMap();
         int index = 0;
         for (BlockMetaData bm : bml) {
-            System.out.println("rowCount: " + bm.getRowCount() + "\t" + "totalByteSize: " + bm.getTotalByteSize());
+            System.out.println(
+                    "rowCount: "
+                            + bm.getRowCount()
+                            + "\t"
+                            + "totalByteSize: "
+                            + bm.getTotalByteSize());
             List<ColumnChunkMetaData> cml = bm.getColumns();
             for (ColumnChunkMetaData cm : cml) {
                 Statistics stats = cm.getStatistics();
                 ColumnPath path = cm.getPath();
                 PrimitiveType type = cm.getPrimitiveType();
-                LOG.info(String.valueOf(stats.type().equals(type)));  //note that column stat get the same type as column
+                LOG.info(
+                        String.valueOf(
+                                stats.type()
+                                        .equals(type))); // note that column stat get the same type
+                // as column
                 Statistics mid;
                 if (!sumStats.containsKey(path)) {
                     mid = stats;
@@ -147,13 +173,20 @@ public class Utils {
                     mid.mergeStatistics(stats);
                 }
                 sumStats.put(path, mid);
-                System.out.println(path + "\t" +
-                        path.toDotString() + "\t" +
-                        type.getPrimitiveTypeName() + "\t" +
-                        type.getName() + "\t" +
-                        stats + "\t" +
-                        stats.hasNonNullValue() + "\t" +
-                        type.getDecimalMetadata());
+                System.out.println(
+                        path
+                                + "\t"
+                                + path.toDotString()
+                                + "\t"
+                                + type.getPrimitiveTypeName()
+                                + "\t"
+                                + type.getName()
+                                + "\t"
+                                + stats
+                                + "\t"
+                                + stats.hasNonNullValue()
+                                + "\t"
+                                + type.getDecimalMetadata());
             }
             System.out.println("--per block " + index++ + " --");
         }
@@ -176,7 +209,7 @@ public class Utils {
     }
 
     @Deprecated
-    //新版本中new ParquetReader()所有构造方法好像都弃用了,用上面的builder去构造对象
+    // 新版本中new ParquetReader()所有构造方法好像都弃用了,用上面的builder去构造对象
     public static void parquetReadDeprecate(String inPath) throws Exception {
         GroupReadSupport readSupport = new GroupReadSupport();
         ParquetReader<Group> reader = new ParquetReader<Group>(new Path(inPath), readSupport);
@@ -185,14 +218,14 @@ public class Utils {
             System.out.println(line.toString());
         }
         System.out.println("读取结束");
-
     }
 
     /**
      * @param outPath 　　输出Parquet格式
      * @throws IOException
      */
-    public static void parquetWrite(String outPath, String content) throws IOException, ParseException {
+    public static void parquetWrite(String outPath, String content)
+            throws IOException, ParseException {
         File file = new File(outPath);
         if (file.exists()) {
             file.delete();
@@ -205,16 +238,18 @@ public class Utils {
         GroupWriteSupport writeSupport = new GroupWriteSupport();
         GroupWriteSupport.setSchema(schema, configuration);
         writeSupport.init(configuration);
-        ParquetWriter<Group> writer = new ParquetWriter<Group>(path, writeSupport, compressionCodec, 9999, 999);
+        ParquetWriter<Group> writer =
+                new ParquetWriter<Group>(path, writeSupport, compressionCodec, 9999, 999);
 
         String[] contentArr = content.split("\n");
 
         for (String line : contentArr) {
             String[] strs = line.split(DELIMITER);
             if (strs.length == 5) {
-                Group group = factory.newGroup()
-                        .append("bookName", strs[0])
-                        .append("price", Double.valueOf(strs[1]));
+                Group group =
+                        factory.newGroup()
+                                .append("bookName", strs[0])
+                                .append("price", Double.valueOf(strs[1]));
                 Group author = group.addGroup("author");
                 author.append("age", Integer.valueOf(strs[2]));
                 author.append("name", strs[3]);
@@ -226,31 +261,36 @@ public class Utils {
         writer.close();
     }
 
-    public static Binary convertTimestampToParquetType (String timestamp) throws ParseException {
+    public static Binary convertTimestampToParquetType(String timestamp) throws ParseException {
         String value = timestamp;
 
         final long NANOS_PER_HOUR = TimeUnit.HOURS.toNanos(1);
         final long NANOS_PER_MINUTE = TimeUnit.MINUTES.toNanos(1);
         final long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
 
-// Parse date
+        // Parse date
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.setTime(parser.parse(value));
 
-// Calculate Julian days and nanoseconds in the day
-        LocalDate dt = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+        // Calculate Julian days and nanoseconds in the day
+        LocalDate dt =
+                LocalDate.of(
+                        cal.get(Calendar.YEAR),
+                        cal.get(Calendar.MONTH) + 1,
+                        cal.get(Calendar.DAY_OF_MONTH));
         int julianDays = (int) JulianFields.JULIAN_DAY.getFrom(dt);
-        long nanos = (cal.get(Calendar.HOUR_OF_DAY) * NANOS_PER_HOUR)
-                + (cal.get(Calendar.MINUTE) * NANOS_PER_MINUTE)
-                + (cal.get(Calendar.SECOND) * NANOS_PER_SECOND);
+        long nanos =
+                (cal.get(Calendar.HOUR_OF_DAY) * NANOS_PER_HOUR)
+                        + (cal.get(Calendar.MINUTE) * NANOS_PER_MINUTE)
+                        + (cal.get(Calendar.SECOND) * NANOS_PER_SECOND);
 
-// Write INT96 timestamp
+        // Write INT96 timestamp
         byte[] timestampBuffer = new byte[12];
         ByteBuffer buf = ByteBuffer.wrap(timestampBuffer);
         buf.order(ByteOrder.LITTLE_ENDIAN).putLong(nanos).putInt(julianDays);
 
-// This is the properly encoded INT96 timestamp
+        // This is the properly encoded INT96 timestamp
         Binary tsValue = Binary.fromReusedByteArray(timestampBuffer);
         return tsValue;
     }

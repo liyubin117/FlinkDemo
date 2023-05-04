@@ -1,12 +1,9 @@
 package datatype;
 
 /**
- * 项目名称: Apache Flink 知其然，知其所以然 - datatype
- * 功能描述:
- * 操作步骤:
- * <p>
- * 作者： 孙金城
- * 日期： 2020/10/11
+ * 项目名称: Apache Flink 知其然，知其所以然 - datatype 功能描述: 操作步骤:
+ *
+ * <p>作者： 孙金城 日期： 2020/10/11
  */
 public class DataTypeSize {
     public static void main(String[] args) {
@@ -19,11 +16,9 @@ public class DataTypeSize {
         // char
         System.out.println("2. char 二进制位数：" + Character.SIZE);
         // 以数值形式而不是字符形式将Character.MIN_VALUE输出到控制台
-        System.out.println("Character.MIN_VALUE="
-                + (int) Character.MIN_VALUE);
+        System.out.println("Character.MIN_VALUE=" + (int) Character.MIN_VALUE);
         // 以数值形式而不是字符形式将Character.MAX_VALUE输出到控制台
-        System.out.println("Character.MAX_VALUE="
-                + (int) Character.MAX_VALUE);
+        System.out.println("Character.MAX_VALUE=" + (int) Character.MAX_VALUE);
 
         // short
         System.out.println("3. short 二进制位数：" + Short.SIZE);
