@@ -1,5 +1,10 @@
 package org.lyb.calcite;
 
+import static org.junit.Assert.assertEquals;
+import static org.lyb.calcite.Utils.extractSourceTables;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.*;
 import java.util.List;
 import org.apache.calcite.plan.RelOptUtil;
@@ -116,10 +121,31 @@ public class CalciteTest {
     }
 
     @Test
-    public void testExtractTable() throws SqlParseException {
-        System.out.println(Utils.extractTableNameList("select id,name from `person`"));
+    public void testExtractTableFromSqlNode() throws SqlParseException {
+        System.out.println(Utils.extractTableNameList("select id,name from person"));
         System.out.println(
                 Utils.extractTableNameList(
                         "select a.id,b.name,b.label from orders a, customers b where a.id = b.id"));
+    }
+
+    @Test
+    public void testExtractTableFromRelNode() throws SqlParseException {
+        final FrameworkConfig config = config().build();
+        final RelBuilder builder = RelBuilder.create(config);
+        RelNode query =
+                builder.scan("myTable")
+                        .filter(
+                                builder.call(
+                                        SqlStdOperatorTable.EQUALS,
+                                        builder.field("column1"),
+                                        builder.literal("value1")))
+                        .build();
+        assertEquals(
+                "myTable", String.join(".", extractSourceTables(query).get(0).getQualifiedName()));
+    }
+
+    @Test
+    public void testUrlEncoder() throws UnsupportedEncodingException {
+        System.out.println(URLEncoder.encode("+-*/#$", "UTF-8"));
     }
 }

@@ -2,6 +2,8 @@ package org.lyb.calcite;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.calcite.plan.RelOptTable;
+import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
@@ -16,6 +18,13 @@ public class Utils {
         parseSqlNode(parsed, tableNameList);
 
         return tableNameList;
+    }
+
+    /** 提取RelNode中的源表 */
+    public static List<RelOptTable> extractSourceTables(RelNode root) {
+        TableSourceExtractor extractor = new TableSourceExtractor();
+        root.childrenAccept(extractor);
+        return extractor.getTables();
     }
 
     private static void parseFromNode(SqlNode from, List<String> tableNameList) {
