@@ -20,8 +20,6 @@ public final class MiniClusterExtensionFactory {
     private MiniClusterExtensionFactory() {}
 
     private static Builder defaultBuilder() {
-        return new Builder()
-                .setNumberSlotsPerTaskManager(PARALLELISM)
-                .setNumberTaskManagers(1);
+        return new Builder().setNumberSlotsPerTaskManager(PARALLELISM).setNumberTaskManagers(1);
     }
 }

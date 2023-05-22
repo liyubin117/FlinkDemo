@@ -4,12 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.util.stream.Stream;
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
 import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
 import net.mguenther.kafka.junit.SendValues;
 import net.mguenther.kafka.junit.TopicConfig;
-
-import java.util.stream.Stream;
 
 /** A slim wrapper around <a href="https://mguenther.github.io/kafka-junit/">kafka-junit</a>. */
 public class CookbookKafkaCluster extends EmbeddedKafkaCluster {

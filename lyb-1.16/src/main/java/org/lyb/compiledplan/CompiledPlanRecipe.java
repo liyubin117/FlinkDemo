@@ -1,11 +1,10 @@
 package org.lyb.compiledplan;
 
+import java.nio.file.Path;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.PlanReference;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
-
-import java.nio.file.Path;
 
 public class CompiledPlanRecipe {
 

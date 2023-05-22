@@ -1,10 +1,9 @@
 package org.lyb.splitstream.events;
 
-import net.datafaker.Faker;
-import org.lyb.splitstream.event.Event;
-
 import java.util.Random;
 import java.util.function.Supplier;
+import net.datafaker.Faker;
+import org.lyb.splitstream.event.Event;
 
 /** A supplier that produces Events. */
 public class EventSupplier implements Supplier<Event> {

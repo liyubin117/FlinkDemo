@@ -1,9 +1,8 @@
 package org.lyb.sessionwindow.events;
 
-import net.datafaker.Faker;
-
 import java.time.Instant;
 import java.util.function.Supplier;
+import net.datafaker.Faker;
 
 /** A supplier that produces Events. */
 public class EventSupplier implements Supplier<Event> {

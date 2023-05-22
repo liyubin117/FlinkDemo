@@ -1,6 +1,5 @@
 package org.lyb.mysql;
 
-import com.zaxxer.hikari.HikariDataSource;
 import java.sql.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,8 +10,6 @@ public class MysqlE2eTest {
     private static final String DOCKER_IMAGE_NAME = "mysql:5.7.32";
     /** 数据库 */
     private static final String DATABASE = "mine_database";
-    /** 连接池类型 */
-    private static final Class<?> POOL_TYPE_CLASS = HikariDataSource.class;
 
     public static MySQLContainer<?> mySqlContainer =
             new MySQLContainer<>(DockerImageName.parse(DOCKER_IMAGE_NAME))

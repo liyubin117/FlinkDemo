@@ -1,9 +1,5 @@
 package org.lyb.cep;
 
-import org.lyb.cep.patterns.MatcherV3;
-import org.lyb.cep.patterns.PatternMatcher;
-import org.lyb.cep.records.SensorReading;
-import org.lyb.cep.records.SensorReadingDeserializationSchema;
 import java.time.Duration;
 import java.util.function.Consumer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -15,6 +11,10 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.PrintSink;
+import org.lyb.cep.patterns.MatcherV3;
+import org.lyb.cep.patterns.PatternMatcher;
+import org.lyb.cep.records.SensorReading;
+import org.lyb.cep.records.SensorReadingDeserializationSchema;
 
 public class PatternMatchingCEP {
 

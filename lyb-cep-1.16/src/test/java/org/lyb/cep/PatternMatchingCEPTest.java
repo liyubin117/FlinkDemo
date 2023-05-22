@@ -1,20 +1,10 @@
 package org.lyb.cep;
 
-import static org.lyb.cep.PatternMatchingCEP.TOPIC;
-import static org.lyb.cep.records.SensorReading.HOT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.lyb.cep.PatternMatchingCEP.TOPIC;
+import static org.lyb.cep.records.SensorReading.HOT;
 
-import org.lyb.cep.extensions.MiniClusterExtensionFactory;
-import org.lyb.cep.patterns.MatcherV1;
-import org.lyb.cep.patterns.MatcherV2;
-import org.lyb.cep.patterns.MatcherV3;
-import org.lyb.cep.patterns.PatternMatcher;
-import org.lyb.cep.records.OscillatingSensorReadingSupplier;
-import org.lyb.cep.records.RisingSensorReadingSupplier;
-import org.lyb.cep.records.SensorReading;
-import org.lyb.cep.records.SensorReadingDeserializationSchema;
-import org.lyb.cep.utils.CookbookKafkaCluster;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +17,16 @@ import org.apache.flink.test.junit5.MiniClusterExtension;
 import org.apache.flink.types.PojoTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.lyb.cep.extensions.MiniClusterExtensionFactory;
+import org.lyb.cep.patterns.MatcherV1;
+import org.lyb.cep.patterns.MatcherV2;
+import org.lyb.cep.patterns.MatcherV3;
+import org.lyb.cep.patterns.PatternMatcher;
+import org.lyb.cep.records.OscillatingSensorReadingSupplier;
+import org.lyb.cep.records.RisingSensorReadingSupplier;
+import org.lyb.cep.records.SensorReading;
+import org.lyb.cep.records.SensorReadingDeserializationSchema;
+import org.lyb.cep.utils.CookbookKafkaCluster;
 
 class PatternMatchingCEPTest {
 

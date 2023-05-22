@@ -2,6 +2,12 @@ package org.lyb.cep;
 
 import static org.lyb.cep.PatternMatchingCEP.TOPIC;
 
+import java.time.Duration;
+import java.util.stream.Stream;
+import org.apache.flink.test.junit5.MiniClusterExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.lyb.cep.extensions.MiniClusterExtensionFactory;
 import org.lyb.cep.patterns.MatcherV1;
 import org.lyb.cep.patterns.MatcherV2;
@@ -10,12 +16,6 @@ import org.lyb.cep.patterns.PatternMatcher;
 import org.lyb.cep.records.OscillatingSensorReadingSupplier;
 import org.lyb.cep.records.SensorReading;
 import org.lyb.cep.utils.CookbookKafkaCluster;
-import java.time.Duration;
-import java.util.stream.Stream;
-import org.apache.flink.test.junit5.MiniClusterExtension;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * These production tests each run their respective PatternMatcher against an oscillating event

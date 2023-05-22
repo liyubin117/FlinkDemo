@@ -1,7 +1,5 @@
 package org.lyb.cep.patterns;
 
-import org.lyb.cep.conditions.StillHotLater;
-import org.lyb.cep.records.SensorReading;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +8,8 @@ import org.apache.flink.cep.nfa.aftermatch.AfterMatchSkipStrategy;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.util.Collector;
+import org.lyb.cep.conditions.StillHotLater;
+import org.lyb.cep.records.SensorReading;
 
 public class MatcherV1 implements PatternMatcher<SensorReading, SensorReading> {
 

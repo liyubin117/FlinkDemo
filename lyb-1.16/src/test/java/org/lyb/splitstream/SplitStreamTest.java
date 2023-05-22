@@ -1,5 +1,10 @@
 package org.lyb.splitstream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lyb.splitstream.SplitStream.TOPIC;
+
+import java.util.Iterator;
+import java.util.stream.Stream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -9,16 +14,10 @@ import org.apache.flink.util.CloseableIterator;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.lyb.utils.MiniClusterExtensionFactory;
-import org.lyb.utils.CookbookKafkaCluster;
 import org.lyb.splitstream.event.Event;
 import org.lyb.splitstream.events.EventSupplier;
-
-import java.util.Iterator;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.lyb.splitstream.SplitStream.TOPIC;
+import org.lyb.utils.CookbookKafkaCluster;
+import org.lyb.utils.MiniClusterExtensionFactory;
 
 class SplitStreamTest {
 

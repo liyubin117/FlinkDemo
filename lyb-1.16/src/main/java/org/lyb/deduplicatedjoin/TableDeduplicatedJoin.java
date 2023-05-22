@@ -1,5 +1,6 @@
 package org.lyb.deduplicatedjoin;
 
+import java.util.function.Consumer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
@@ -13,8 +14,6 @@ import org.lyb.deduplicatedjoin.records.Customer;
 import org.lyb.deduplicatedjoin.records.CustomerDeserializer;
 import org.lyb.deduplicatedjoin.records.Transaction;
 import org.lyb.deduplicatedjoin.records.TransactionDeserializer;
-
-import java.util.function.Consumer;
 
 public class TableDeduplicatedJoin {
 

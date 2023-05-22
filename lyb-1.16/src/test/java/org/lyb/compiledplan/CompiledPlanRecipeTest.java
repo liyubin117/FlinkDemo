@@ -1,5 +1,11 @@
 package org.lyb.compiledplan;
 
+import static org.lyb.compiledplan.CompiledPlanRecipe.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.TableEnvironment;
@@ -10,17 +16,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.lyb.utils.CookbookKafkaCluster;
 import org.lyb.utils.MiniClusterExtensionFactory;
 import org.lyb.utils.records.DuplicatingTransactionSupplier;
-import org.lyb.utils.CookbookKafkaCluster;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
-
-import static org.lyb.compiledplan.CompiledPlanRecipe.*;
-
 
 class CompiledPlanRecipeTest {
 

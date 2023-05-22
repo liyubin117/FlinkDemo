@@ -1,11 +1,10 @@
 package org.lyb.utils.records;
 
-import org.lyb.deduplicatedjoin.records.Transaction;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Random;
 import java.util.function.Supplier;
+import org.lyb.deduplicatedjoin.records.Transaction;
 
 /** An supplier that produces duplicated Transactions. */
 public class DuplicatingTransactionSupplier implements Supplier<Transaction> {

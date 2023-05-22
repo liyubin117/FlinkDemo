@@ -1,5 +1,8 @@
 package org.lyb.splitstream;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -13,10 +16,6 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import org.lyb.splitstream.event.Event;
 import org.lyb.splitstream.event.EventDeserializationSchema;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class SplitStream {
 
@@ -48,9 +47,13 @@ public class SplitStream {
             Consumer<DataStream<Event>> criticalEventSinkApplier,
             Consumer<DataStream<Event>> majorEventSinkApplier) {
         final Map<Event.Priority, OutputTag<Event>> tagsByPriority = new HashMap<>();
-        tagsByPriority.put(Event.Priority.CRITICAL, new OutputTag<>("critical", TypeInformation.of(Event.class)));
-        tagsByPriority.put(Event.Priority.MAJOR, new OutputTag<>("major", TypeInformation.of(Event.class)));
-        tagsByPriority.put(Event.Priority.MINOR, new OutputTag<>("minor", TypeInformation.of(Event.class)));
+        tagsByPriority.put(
+                Event.Priority.CRITICAL,
+                new OutputTag<>("critical", TypeInformation.of(Event.class)));
+        tagsByPriority.put(
+                Event.Priority.MAJOR, new OutputTag<>("major", TypeInformation.of(Event.class)));
+        tagsByPriority.put(
+                Event.Priority.MINOR, new OutputTag<>("minor", TypeInformation.of(Event.class)));
 
         final SingleOutputStreamOperator<Event> process =
                 source.process(

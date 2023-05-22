@@ -5,7 +5,10 @@ import static org.lyb.calcite.Utils.extractSourceTables;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.plan.RelTraitDef;

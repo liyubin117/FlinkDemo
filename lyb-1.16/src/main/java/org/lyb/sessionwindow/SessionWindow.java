@@ -1,5 +1,6 @@
 package org.lyb.sessionwindow;
 
+import java.util.function.Consumer;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
@@ -16,8 +17,6 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.lyb.sessionwindow.events.Event;
 import org.lyb.sessionwindow.events.EventDeserializationSchema;
 import org.lyb.sessionwindow.events.UserActivity;
-
-import java.util.function.Consumer;
 
 public class SessionWindow {
 

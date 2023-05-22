@@ -1,8 +1,7 @@
 package org.lyb.deduplicatedjoin.records;
 
-import net.datafaker.Faker;
-
 import java.util.function.Supplier;
+import net.datafaker.Faker;
 
 /** A supplier that produces Customers. */
 public class CustomerSupplier implements Supplier<Customer> {

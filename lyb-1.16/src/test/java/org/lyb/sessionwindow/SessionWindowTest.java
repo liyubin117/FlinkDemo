@@ -1,5 +1,9 @@
 package org.lyb.sessionwindow;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lyb.sessionwindow.SessionWindow.TOPIC;
+
+import java.util.stream.Stream;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -15,11 +19,6 @@ import org.lyb.sessionwindow.events.EventSupplier;
 import org.lyb.sessionwindow.events.UserActivity;
 import org.lyb.utils.CookbookKafkaCluster;
 import org.lyb.utils.MiniClusterExtensionFactory;
-
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.lyb.sessionwindow.SessionWindow.TOPIC;
 
 class SessionWindowTest {
 
@@ -74,7 +73,5 @@ class SessionWindowTest {
     }
 
     @Test
-    void testSqlSessionWindow() {
-
-    }
+    void testSqlSessionWindow() {}
 }

@@ -1,8 +1,8 @@
 package org.lyb.cep.conditions;
 
-import org.lyb.cep.records.SensorReading;
 import java.time.Duration;
 import org.apache.flink.cep.pattern.conditions.IterativeCondition;
+import org.lyb.cep.records.SensorReading;
 
 public class StillHotLater extends IterativeCondition<SensorReading> {
 

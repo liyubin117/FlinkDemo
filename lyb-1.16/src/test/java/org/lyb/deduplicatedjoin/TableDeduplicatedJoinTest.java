@@ -1,5 +1,15 @@
 package org.lyb.deduplicatedjoin;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lyb.deduplicatedjoin.TableDeduplicatedJoin.CUSTOMER_TOPIC;
+import static org.lyb.deduplicatedjoin.TableDeduplicatedJoin.TRANSACTION_TOPIC;
+
+import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -15,17 +25,6 @@ import org.lyb.deduplicatedjoin.records.Transaction;
 import org.lyb.utils.CookbookKafkaCluster;
 import org.lyb.utils.MiniClusterExtensionFactory;
 import org.lyb.utils.records.DuplicatingTransactionSupplier;
-
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.lyb.deduplicatedjoin.TableDeduplicatedJoin.CUSTOMER_TOPIC;
-import static org.lyb.deduplicatedjoin.TableDeduplicatedJoin.TRANSACTION_TOPIC;
 
 class TableDeduplicatedJoinTest {
 

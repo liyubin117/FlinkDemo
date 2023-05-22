@@ -1,11 +1,10 @@
 package org.lyb.deduplicatedjoin.records;
 
-import org.apache.flink.types.Row;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.flink.types.Row;
 
 public class TestData {
     public static final Customer[] CUSTOMERS =
