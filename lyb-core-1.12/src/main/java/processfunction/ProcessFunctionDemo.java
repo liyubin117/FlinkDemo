@@ -1,4 +1,4 @@
-package trigger;
+package processfunction;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** 在电商网站买了商品，订单完成之后，如果用户24小时之内没评论，系统自动好评。 我们通过flink的定时器来简单的实现这个功能 */
-public class TimerDemo {
+public class ProcessFunctionDemo {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TimerDemo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessFunctionDemo.class);
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

@@ -26,7 +26,7 @@ public class JavaSocketWindowWordCount {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        DataStream<String> text = env.socketTextStream("spark", port, "\n");
+        DataStream<String> text = env.socketTextStream("localhost", port, "\n");
 
         DataStream<WordWithCount> windowCounts =
                 text.map(
@@ -64,7 +64,7 @@ public class JavaSocketWindowWordCount {
             getRuntimeContext()
                     .getMetricGroup()
                     .gauge(
-                            "MyGauge",
+                            "MyFlatMapGauge",
                             new Gauge<Integer>() {
                                 @Override
                                 public Integer getValue() {
