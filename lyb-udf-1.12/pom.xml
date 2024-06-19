@@ -20,6 +20,16 @@
             <artifactId>lyb-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.agkn</groupId>
+            <artifactId>hll</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.roaringbitmap</groupId>
+            <artifactId>RoaringBitmap</artifactId>
+            <version>0.8.0</version>
+        </dependency>
     </dependencies>
     
 </project>
