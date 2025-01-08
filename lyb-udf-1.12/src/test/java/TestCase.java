@@ -5,8 +5,10 @@ import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
 import org.junit.Before;
 import org.junit.Test;
+import scalar.GetJsonObject;
 import scalar.HashCode;
 
 /**
@@ -45,5 +47,15 @@ public class TestCase {
 
         tableEnv.createTemporarySystemFunction("hash", function);
         result.select("hash(name)").execute().print();
+    }
+
+    @Test
+    public void testGetJsonObject() throws Exception {
+        tableEnv.registerFunction("get_json_object", new GetJsonObject());
+        String str = "select get_json_object(get_json_object('{\"k\":{\"k1\":\"v1\"}}', '$.k'),'$.k1')";
+        System.out.println(str);
+        Table query = tableEnv.sqlQuery(str);
+        tableEnv.toAppendStream(query, Row.class).print();
+        env.execute();
     }
 }

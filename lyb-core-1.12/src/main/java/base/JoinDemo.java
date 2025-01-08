@@ -17,7 +17,7 @@ public class JoinDemo {
         //        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         DataStream<Tuple2<String, Integer>> left =
-                env.socketTextStream("localhost", 9888)
+                env.socketTextStream("127.0.0.1", 9888)
                         .map(
                                 new RichMapFunction<String, Tuple2<String, Integer>>() {
                                     @Override
@@ -28,7 +28,7 @@ public class JoinDemo {
                                     }
                                 });
         DataStream<Tuple2<String, Integer>> right =
-                env.socketTextStream("localhost", 9889)
+                env.socketTextStream("127.0.0.1", 9889)
                         .map(
                                 new RichMapFunction<String, Tuple2<String, Integer>>() {
                                     @Override

@@ -8,14 +8,14 @@ import java.util.Random;
 
 /** Created by liyubin on 2018/7/2 0002. */
 public class KafkaConfig {
-    public static final String HOSTNAME = "sloth-test2.dg.163.org";
+    public static final String HOSTNAME = "10.143.33.48";
     public static final String ZOOKEEPER = HOSTNAME + ":2188";
     public static final String KAFKA = HOSTNAME + ":9092";
     public static final String SERIALIZER =
             "org.apache.kafka.common.serialization.StringSerializer";
     public static final String ACKS = "sta.txt";
     public static final String GROUP_ID = "test_group";
-    public static final String TOPICS = "wt-kafka-magina";
+    public static final String TOPICS = "lybtest1";
 
     public static List<String> getMsgList() {
         // ds取当前时间、role_id取随机值

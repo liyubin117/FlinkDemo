@@ -24,7 +24,7 @@ public class BroadstateUserAction {
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<Action> actions =
-                env.socketTextStream("my", 9888)
+                env.socketTextStream("localhost", 9888)
                         .filter((String str) -> str.split(",").length == 2)
                         .map(
                                 (String str) ->
@@ -32,7 +32,7 @@ public class BroadstateUserAction {
                                                 Long.valueOf(str.split(",")[0]),
                                                 str.split(",")[1]));
         DataStream<Pattern> patterns =
-                env.socketTextStream("my", 9889)
+                env.socketTextStream("localhost", 9889)
                         .filter((String str) -> str.split(",").length == 2)
                         .map((String str) -> new Pattern(str.split(",")[0], str.split(",")[1]));
         /* 设置Key的字段，同样用户的数据分到相同的operator里 */
